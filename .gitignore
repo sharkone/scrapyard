@@ -52,3 +52,9 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Cloud9
+.c9/
+
+# Virtualenv
+.venv/
