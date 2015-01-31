@@ -34,19 +34,19 @@ import trakt
 def movies_popular(page, limit):
     return trakt.movies_popular(page, limit)
 
-# ################################################################################
+################################################################################
 def movies_trending(page, limit):
     return trakt.movies_trending(page, limit)
 
-# ################################################################################
-# def movies_search(query):
-#     return trakt.movies_search(query)
+################################################################################
+def movies_search(query):
+    return trakt.movies_search(query)
 
-# ################################################################################
-# def movie(trakt_slug):
-#     movie_info            = trakt.movie(trakt_slug, people_needed=True)
-#     movie_info['magnets'] = cache.optional(__movie_magnets, expiration=cache.HOUR)([ kickass, yts ], movie_info)
-#     return movie_info
+################################################################################
+def movie(trakt_slug):
+    movie_info            = trakt.movie(trakt_slug, people_needed=True)
+    # movie_info['magnets'] = cache.optional(__movie_magnets, expiration=cache.HOUR)([ kickass, yts ], movie_info)
+    return movie_info
 
 # ################################################################################
 # def __movie_magnets(providers, movie_info):
@@ -55,34 +55,34 @@ def movies_trending(page, limit):
 ################################################################################
 # Shows
 ################################################################################
-# def show(trakt_slug):
-#     show_info = trakt.show(trakt_slug, seasons_needed=True)
-#     return show_info
+def show(trakt_slug):
+    show_info = trakt.show(trakt_slug, seasons_needed=True)
+    return show_info
 
-# ################################################################################
-# def show_season(trakt_slug, season_index):
-#     season_info = trakt.show_season(trakt_slug, season_index)
-#     return season_info
+################################################################################
+def show_season(trakt_slug, season_index):
+    season_info = trakt.show_season(trakt_slug, season_index)
+    return season_info
 
-# ################################################################################
-# def show_episode(trakt_slug, season_index, episode_index):
-#     show_info               = trakt.show(trakt_slug)
-#     episode_info            = trakt.show_episode(trakt_slug, season_index, episode_index)
-#     episode_info['magnets'] = cache.optional(__show_episode_magnets, expiration=cache.HOUR)([ eztv, kickass ], show_info, episode_info)
-#     return episode_info
+################################################################################
+def show_episode(trakt_slug, season_index, episode_index):
+    show_info               = trakt.show(trakt_slug)
+    episode_info            = trakt.show_episode(trakt_slug, season_index, episode_index)
+    # episode_info['magnets'] = cache.optional(__show_episode_magnets, expiration=cache.HOUR)([ eztv, kickass ], show_info, episode_info)
+    return episode_info
 
 # ################################################################################
 # def __show_episode_magnets(providers, show_info, episode_info):
 #     return __populate_magnets(providers, functools.partial(lambda module, show_info, episode_info: module.episode(show_info, episode_info), show_info=show_info, episode_info=episode_info))
 
 # ################################################################################
-# def shows_popular(page, limit):
-#     return trakt.shows_popular(page, limit)
+def shows_popular(page, limit):
+    return trakt.shows_popular(page, limit)
 
-# ################################################################################
-# def shows_trending(page, limit):
-#     return trakt.shows_trending(page, limit)
+################################################################################
+def shows_trending(page, limit):
+    return trakt.shows_trending(page, limit)
 
-# ################################################################################
-# def shows_search(query):
-#     return trakt.shows_search(query)
+################################################################################
+def shows_search(query):
+    return trakt.shows_search(query)
