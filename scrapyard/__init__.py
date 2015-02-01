@@ -46,6 +46,8 @@ def movies_search(query):
 def movie(trakt_slug):
     movie_info            = trakt.movie(trakt_slug, people_needed=True)
     movie_info['magnets'] = cache.optional(__movie_magnets, expiration=cache.HOUR, cache_key=trakt_slug)([ kickass, yts ], movie_info)
+    if movie_info['magnets'] == None:
+        movie_info['magnets'] = []
     return movie_info
 
 ################################################################################
@@ -69,6 +71,8 @@ def show_episode(trakt_slug, season_index, episode_index):
     show_info               = trakt.show(trakt_slug)
     episode_info            = trakt.show_episode(trakt_slug, season_index, episode_index)
     episode_info['magnets'] = cache.optional(__show_episode_magnets, expiration=cache.HOUR, cache_key='{0}-{1}-{2}'.format(trakt_slug, season_index, episode_index))([ eztv, kickass ], show_info, episode_info)
+    if episode_info['magnets'] == None:
+        episode_info['magnets'] = []
     return episode_info
 
 ################################################################################
