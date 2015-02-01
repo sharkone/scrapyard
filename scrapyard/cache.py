@@ -41,7 +41,13 @@ def optional(func, expiration, cache_key=None):
 
         # Update if needed
         if not value or value['expires_on'] < datetime.datetime.now():
-            data = func(*args, **kwargs)
+            data = None
+
+            try:
+                data = func(*args, **kwargs)
+            except Exception:
+                pass
+
             if data:
                 value = { 'expires_on': datetime.datetime.now() + expiration, 'data': data }
                 __set_cache(key, expiration, value)
@@ -60,17 +66,30 @@ def mandatory(func, expiration, retry_delay, max_retries, cache_key=None):
         if not value:
             retry_count = max_retries
             while retry_count > 0:
-                data = func(*args, **kwargs)
+                data = None
+
+                try:
+                    data = func(*args, **kwargs)
+                except Exception:
+                    pass
+
                 if data:
                     value = { 'expires_on' : datetime.datetime.now() + expiration, 'data': data }
                     __set_cache(key, expiration, value)
                     break
+
                 time.sleep(retry_delay)
                 retry_count -= 1
         else:
             # Update if needed
             if value['expires_on'] < datetime.datetime.now():
-                data = func(*args, **kwargs)
+                data = None
+
+                try:
+                    data = func(*args, **kwargs)
+                except Exception:
+                    pass
+
                 if data:
                     value = { 'expires_on': datetime.datetime.now() + expiration, 'data': data }
                     __set_cache(key, expiration, value)

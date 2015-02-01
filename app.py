@@ -33,16 +33,16 @@ def index():
 ################################################################################
 @app.route('/api/movies/popular')
 def api_movies_popular():
-    page   = int(flask.request.args.get('page', '1'))
-    limit  = int(flask.request.args.get('limit', '10'))
+    page   = flask.request.args.get('page', '1', type=int)
+    limit  = flask.request.args.get('limit', '10', type=int)
     result = scrapyard.movies_popular(page, limit)
     return flask.jsonify(result)
 
 ################################################################################
 @app.route('/api/movies/trending')
 def api_movies_trending():
-    page   = int(flask.request.args.get('page', '1'))
-    limit  = int(flask.request.args.get('limit', '10'))
+    page   = flask.request.args.get('page', '1', type=int)
+    limit  = flask.request.args.get('limit', '10', type=int)
     result = scrapyard.movies_trending(page, limit)
     return flask.jsonify(result)
 
@@ -64,16 +64,16 @@ def api_movie(trakt_slug):
 ################################################################################
 @app.route('/api/shows/popular')
 def api_shows_popular():
-    page   = int(flask.request.args.get('page', '1'))
-    limit  = int(flask.request.args.get('limit', '10'))
+    page   = flask.request.args.get('page', '1', type=int)
+    limit  = flask.request.args.get('limit', '10', type=int)
     result = scrapyard.shows_popular(page, limit)
     return flask.jsonify(result)
 
 ################################################################################
 @app.route('/api/shows/trending')
 def api_shows_trending():
-    page   = int(flask.request.args.get('page', '1'))
-    limit  = int(flask.request.args.get('limit', '10'))
+    page   = flask.request.args.get('page', '1', type=int)
+    limit  = flask.request.args.get('limit', '10', type=int)
     result = scrapyard.shows_trending(page, limit)
     return flask.jsonify(result)
 
