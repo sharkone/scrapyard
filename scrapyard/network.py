@@ -48,26 +48,38 @@ def http_get_cached_optional(url, expiration, params={}, headers={}, timeout=TIM
 # JSON
 ################################################################################
 def json_get(url, params={}, headers={}, timeout=TIMEOUT):
-    return json.loads(http_get(url, params=params, headers=headers, timeout=timeout))
+    data = http_get(url, params=params, headers=headers, timeout=timeout)
+    if data:
+        return json.loads(data)
 
 ################################################################################
 def json_get_cached_mandatory(url, expiration, retry_delay=1, max_retries=20, params={}, headers={}, timeout=TIMEOUT):
-    return json.loads(http_get_cached_mandatory(url, expiration, retry_delay, max_retries, params, headers, timeout))
+    data = http_get_cached_mandatory(url, expiration, retry_delay, max_retries, params, headers, timeout)
+    if data:
+        return json.loads(data)
 
 ################################################################################
 def json_get_cached_optional(url, expiration, params={}, headers={}, timeout=TIMEOUT):
-    return json.loads(http_get_cached_optional(url, expiration, params, headers, timeout))
+    data = http_get_cached_optional(url, expiration, params, headers, timeout)
+    if data:
+        return json.loads(data)
 
 ################################################################################
 # RSS
 ################################################################################
 def rss_get(url, params={}, headers={}, timeout=TIMEOUT):
-    return feedparser.parse(http_get(url, params=params, headers=headers, timeout=timeout))
+    data = http_get(url, params=params, headers=headers, timeout=timeout)
+    if data:
+        return feedparser.parse(data)
 
 ################################################################################
 def rss_get_cached_mandatory(url, expiration, retry_delay=1, max_retries=20, params={}, headers={}, timeout=TIMEOUT):
-    return feedparser.parse(http_get_cached_mandatory(url, expiration, retry_delay, max_retries, params, headers, timeout))
+    data = http_get_cached_mandatory(url, expiration, retry_delay, max_retries, params, headers, timeout)
+    if data:
+        return feedparser.parse(data)
 
 ################################################################################
 def rss_get_cached_optional(url, expiration, params={}, headers={}, timeout=TIMEOUT):
-    return feedparser.parse(http_get_cached_optional(url, expiration, params, headers, timeout))
+    data = http_get_cached_optional(url, expiration, params, headers, timeout)
+    if data:
+        return feedparser.parse(data)
