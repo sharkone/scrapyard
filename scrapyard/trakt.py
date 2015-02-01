@@ -35,33 +35,38 @@ def movie(trakt_slug, people_needed=False):
                 result['people'] = { 'cast': [], 'crew': { 'directing': [], 'production': [], 'writing': [] } }
                 json_data = network.json_get_cached_mandatory(TRAKT_URL + '/movies/' + trakt_slug + '/people', expiration=cache.WEEK, params={ 'extended': 'images' }, headers=TRAKT_HEADERS)
                 if json_data:
-                    for json_item in json_data['cast']:
-                        result['people']['cast'].append({
-                                                            'name':         json_item['person']['name'],
-                                                            'headshot':     json_item['person']['images']['headshot']['full'],
-                                                            'character':    json_item['character']
-                                                        })
+                    if 'cast' in json_data:
+                        for json_item in json_data['cast']:
+                            result['people']['cast'].append({
+                                                                'name':         json_item['person']['name'],
+                                                                'headshot':     json_item['person']['images']['headshot']['full'],
+                                                                'character':    json_item['character']
+                                                            })
 
-                    for json_item in json_data['crew']['directing']:
-                        result['people']['crew']['directing'].append({
-                                                                        'name':     json_item['person']['name'],
-                                                                        'headshot': json_item['person']['images']['headshot']['full'],
-                                                                        'job':      json_item['job']
-                                                                     })
+                    if 'crew' in json_data:
+                        if 'directing' in json_data['crew']:
+                            for json_item in json_data['crew']['directing']:
+                                result['people']['crew']['directing'].append({
+                                                                                'name':     json_item['person']['name'],
+                                                                                'headshot': json_item['person']['images']['headshot']['full'],
+                                                                                'job':      json_item['job']
+                                                                             })
 
-                    for json_item in json_data['crew']['production']:
-                        result['people']['crew']['production'].append({
-                                                                        'name':     json_item['person']['name'],
-                                                                        'headshot': json_item['person']['images']['headshot']['full'],
-                                                                        'job':      json_item['job']
-                                                                      })
+                        if 'production' in json_data['crew']:
+                            for json_item in json_data['crew']['production']:
+                                result['people']['crew']['production'].append({
+                                                                                'name':     json_item['person']['name'],
+                                                                                'headshot': json_item['person']['images']['headshot']['full'],
+                                                                                'job':      json_item['job']
+                                                                              })
 
-                    for json_item in json_data['crew']['writing']:
-                        result['people']['crew']['writing'].append({
-                                                                        'name':     json_item['person']['name'],
-                                                                        'headshot': json_item['person']['images']['headshot']['full'],
-                                                                        'job':      json_item['job']
-                                                                    })
+                        if 'writing' in json_data['crew']:
+                            for json_item in json_data['crew']['writing']:
+                                result['people']['crew']['writing'].append({
+                                                                                'name':     json_item['person']['name'],
+                                                                                'headshot': json_item['person']['images']['headshot']['full'],
+                                                                                'job':      json_item['job']
+                                                                            })
 
             return result
 
