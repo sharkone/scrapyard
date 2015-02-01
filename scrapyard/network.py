@@ -18,8 +18,8 @@ def __http_get(request, timeout=TIMEOUT, logging=True):
         session  = requests.Session()
         response = session.send(request, timeout=timeout)
         response.raise_for_status()
-        if logging:
-            sys.stdout.write('{0} : {1:3.1f}s : GET : {2}\n'.format('NET:OK', timeit.default_timer() - start_time, request.url))
+        #if logging:
+        #    sys.stdout.write('{0} : {1:3.1f}s : GET : {2}\n'.format('NET:OK', timeit.default_timer() - start_time, request.url))
         return response.content
     except requests.exceptions.RequestException as exception:
         if logging:

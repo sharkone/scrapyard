@@ -129,7 +129,7 @@ def __scrape_tracker_udp(tracker, magnets, timeout):
                                     peers = struct.unpack_from("!i", recv_transaction_data, offset)[0]
                                     offset += 4
                                     results[magnet] = { 'seeds': seeds, 'peers': peers, 'completed': completed }
-                                    sys.stdout.write('{0} : {1:3.1f}s : SCR : {2}://{3} {4}\n'.format('NET:OK', timeit.default_timer() - start_time, tracker.scheme, tracker.netloc, magnet.info_hash))
+                                    #sys.stdout.write('{0} : {1:3.1f}s : SCR : {2}://{3} {4}\n'.format('NET:OK', timeit.default_timer() - start_time, tracker.scheme, tracker.netloc, magnet.info_hash))
     except Exception:
         pass
 
@@ -158,7 +158,7 @@ def __scrape_tracker_http(tracker, magnets, timeout):
                 for magnet in results:
                     if magnet.info_hash == info_hash:
                         results[magnet] = { 'seeds': stats['complete'], 'peers': stats['incomplete'], 'completed': stats['downloaded'] }
-                        sys.stdout.write('{0} : {1:3.1f}s : SCR : {2}://{3} {4}\n'.format('NET:OK', timeit.default_timer() - start_time, tracker.scheme, tracker.netloc, magnet.info_hash))
+                        #sys.stdout.write('{0} : {1:3.1f}s : SCR : {2}://{3} {4}\n'.format('NET:OK', timeit.default_timer() - start_time, tracker.scheme, tracker.netloc, magnet.info_hash))
                         break
     except Exception:
         pass
