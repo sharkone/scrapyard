@@ -21,7 +21,7 @@ def __get_cache(key):
         redis_cache = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, password=redis_url.password)
         result = redis_cache.get(key)
         result = pickle.loads(result) if result else result
-        #sys.stdout.write('{0} : {1:3.1f}s : GET : {2}\n'.format('RDS:OK', timeit.default_timer() - start_time, key))
+        # sys.stdout.write('{0} : {1:3.1f}s : GET : {2}\n'.format('RDS:OK', timeit.default_timer() - start_time, key))
         return result
     except redis.exceptions.RedisError as exception:
         sys.stderr.write('{0} : {1:3.1f}s : GET : {2} : {3}\n'.format('RDS:KO', timeit.default_timer() - start_time, key, repr(exception).replace(',)', ')')))
@@ -31,7 +31,7 @@ def __set_cache(key, expiration, value):
     try:
         redis_cache = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, password=redis_url.password)
         redis_cache.setex(key, int(expiration.total_seconds()), pickle.dumps(value))
-        #sys.stdout.write('{0} : {1:3.1f}s : SET : {2}\n'.format('RDS:OK', timeit.default_timer() - start_time, key))
+        # sys.stdout.write('{0} : {1:3.1f}s : SET : {2}\n'.format('RDS:OK', timeit.default_timer() - start_time, key))
     except redis.exceptions.RedisError as exception:
         sys.stderr.write('{0} : {1:3.1f}s : SET : {2} : {3}\n'.format('RDS:KO', timeit.default_timer() - start_time, key, repr(exception).replace(',)', ')')))
 
