@@ -93,7 +93,7 @@ def __movie_list(json_data):
     movie_infos = []
     if json_data:
         movie_infos = utils.mt_map(lambda json_item: movie(json_item['movie']['ids']['slug'] if 'movie' in json_item else json_item['ids']['slug']), json_data)
-    movie_infos = filter(lambda movie_info: movie_info['imdb_id'], movie_infos)
+    movie_infos = filter(lambda movie_info: 'imdb_id' in movie_info and movie_info['imdb_id'], movie_infos)
     return { 'movies': movie_infos }
 
 ################################################################################
