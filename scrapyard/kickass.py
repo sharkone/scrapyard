@@ -11,7 +11,8 @@ def movie(movie_info):
 
 ################################################################################
 def episode(show_info, episode_info):
-    return __search('category:{0} {1} season:{2} episode:{3}'.format('tv', show_info['title'], episode_info['season_index'], episode_info['episode_index']))
+    clean_title = show_info['title'].replace('?', '')
+    return __search('category:{0} {1} season:{2} episode:{3}'.format('tv', clean_title, episode_info['season_index'], episode_info['episode_index']))
 
 ################################################################################
 def __search(query):
