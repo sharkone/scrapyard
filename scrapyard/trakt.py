@@ -25,7 +25,7 @@ def movie(trakt_slug, people_needed=False):
                             'thumb':            json_data['images']['poster']['full'],
                             'art':              json_data['images']['fanart']['full'],
                             'runtime':          (json_data['runtime'] * 60 * 1000) if json_data['runtime'] else 0,
-                            'genres':           json_data['genres'],
+                            'genres':           [genre.capitalize() for genre in json_data['genres']],
                             'rating':           json_data['rating'],
                             'released':         json_data['released'],
                             'certification':    json_data['certification']
@@ -113,7 +113,7 @@ def show(trakt_slug, seasons_needed=False):
                             'thumb':            json_data['images']['poster']['full'],
                             'art':              json_data['images']['fanart']['full'],
                             'runtime':          (json_data['runtime'] * 60 * 1000) if json_data['runtime'] else 0,
-                            'genres':           json_data['genres'],
+                            'genres':           [genre.capitalize() for genre in json_data['genres']],
                             'rating':           json_data['rating'],
                             'first_aired':      json_data['first_aired'],
                             'certification':    json_data['certification']
