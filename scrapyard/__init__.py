@@ -23,6 +23,7 @@ def __populate_magnets(providers, func):
                 info_hashes.add(magnet.info_hash)
 
     scraper.scrape_magnets(magnets, timeout=1)
+    magnets = filter(lambda magnet: magnet.seeds > 0, magnets)
     magnets = sorted(magnets, key=lambda magnet: magnet.seeds, reverse=True)
     magnets = [{'link': magnet.link, 'title': magnet.title, 'seeds': magnet.seeds, 'peers': magnet.peers } for magnet in magnets]
 
