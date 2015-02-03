@@ -95,7 +95,7 @@ def movies_search(query):
 def __movie_list(json_data):
     movie_infos = []
     if json_data:
-        movie_infos = utils.mt_map(lambda json_item: movie(json_item['movie']['ids']['slug'] if 'movie' in json_item else json_item['ids']['slug']), json_data) or []
+        movie_infos = map(lambda json_item: movie(json_item['movie']['ids']['slug'] if 'movie' in json_item else json_item['ids']['slug']), json_data) or []
         movie_infos = filter(lambda movie_info: 'imdb_id' in movie_info and movie_info['imdb_id'], movie_infos)
     return movie_infos
 
@@ -199,5 +199,5 @@ def shows_search(query):
 def __show_list(json_data):
     show_infos = []
     if json_data:
-        show_infos = utils.mt_map(lambda json_item: show(json_item['show']['ids']['slug'] if 'show' in json_item else json_item['ids']['slug']), json_data) or []
+        show_infos = map(lambda json_item: show(json_item['show']['ids']['slug'] if 'show' in json_item else json_item['ids']['slug']), json_data) or []
     return show_infos

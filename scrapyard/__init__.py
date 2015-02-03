@@ -11,7 +11,7 @@ import yts
 # Common
 ################################################################################
 def __populate_magnets(providers, func):
-    provider_magnet_lists = utils.mt_map(func, providers)
+    provider_magnet_lists = map(func, providers)
 
     magnets     = []
     info_hashes = set()
