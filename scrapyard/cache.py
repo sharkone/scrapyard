@@ -35,14 +35,22 @@ def __set_cache(key, expiration, value):
     except redis.exceptions.RedisError as exception:
         sys.stderr.write('{0} : {1:3.1f}s : SET : {2} : {3}\n'.format('RDS:KO', timeit.default_timer() - start_time, key, repr(exception).replace(',)', ')')))
 
-def cache(func, expiration, cache_key=None):
+def cache(func, expiration, cache_key=None, exception_handler=None):
     def _cache(func, *args, **kwargs):
         key   = hashlib.md5(':'.join([func.__name__, str(args), str(kwargs)])).hexdigest() if not cache_key else cache_key
         value = __get_cache(key)
 
-        # Update if needed
         if not value or value['expires_on'] < datetime.datetime.now():
-            data = func(*args, **kwargs)
+            data = None
+
+            try:
+                data = func(*args, **kwargs)
+            except Exception as exception:
+                if not value:
+                    # Cache missed, we must fail here
+                    raise exception
+
+            # Update cache with new data
             if data:
                 value = { 'expires_on': datetime.datetime.now() + expiration, 'data': data }
                 __set_cache(key, expiration, value)

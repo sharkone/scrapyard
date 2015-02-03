@@ -40,7 +40,6 @@ class Magnet:
 ################################################################################
 # Scraper
 ################################################################################
-@newrelic.agent.function_trace()
 def scrape_magnets(magnets, timeout=2):
     # Compile tracker magnet lists
     trackers = {}
