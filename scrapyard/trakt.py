@@ -156,14 +156,13 @@ def show_season(trakt_slug, season_index):
                                             'first_aired':      json_item['first_aired'],
                                          })
 
-    return {'episodes': episode_infos }
+    return episode_infos
 
 ################################################################################
 def show_episode(trakt_slug, season_index, episode_index):
     episode_infos = show_season(trakt_slug, season_index)
     if episode_infos:
-        episode_info = next((episode_info for episode_info in episode_infos['episodes'] if episode_info['episode_index'] == episode_index), None)
-        return episode_info
+        return next((episode_info for episode_info in episode_infos if episode_info['episode_index'] == episode_index), None)
 
 ################################################################################
 def shows_popular(page=1, limit=10):
