@@ -33,15 +33,15 @@ def __populate_magnets(providers, func):
 # Movies
 ################################################################################
 def movies_popular(page, limit):
-    return trakt.movies_popular(page, limit)
+    return { 'movies': trakt.movies_popular(page, limit) }
 
 ################################################################################
 def movies_trending(page, limit):
-    return trakt.movies_trending(page, limit)
+    return { 'movies': trakt.movies_trending(page, limit) }
 
 ################################################################################
 def movies_search(query):
-    return trakt.movies_search(query)
+    return { 'movies': trakt.movies_search(query) }
 
 ################################################################################
 def movie(trakt_slug):
@@ -82,12 +82,12 @@ def __show_episode_magnets(providers, show_info, episode_info):
 
 # ################################################################################
 def shows_popular(page, limit):
-    return trakt.shows_popular(page, limit)
+    return { 'shows': trakt.shows_popular(page, limit) }
 
 ################################################################################
 def shows_trending(page, limit):
-    return trakt.shows_trending(page, limit)
+    return { 'shows': trakt.shows_trending(page, limit) }
 
 ################################################################################
 def shows_search(query):
-    return trakt.shows_search(query)
+    return { 'shows': trakt.shows_search(query) }

@@ -73,30 +73,25 @@ def movie(trakt_slug, people_needed=False):
 ################################################################################
 def movies_popular(page=1, limit=10):
     json_data = network.json_get_cached_mandatory(TRAKT_URL + '/movies/popular', expiration=cache.DAY, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
-    if json_data:
-        return __movie_list(json_data)
+    return __movie_list(json_data)
 
 ################################################################################
 def movies_trending(page=1, limit=10):
     json_data = network.json_get_cached_mandatory(TRAKT_URL + '/movies/trending', expiration=cache.HOUR, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
-    if json_data:
-        return __movie_list(json_data)
+    return __movie_list(json_data)
 
 ################################################################################
 def movies_search(query):
     json_data = network.json_get('{0}/{1}'.format(TRAKT_URL, 'search'), params={ 'query': query, 'type': 'movie' }, headers=TRAKT_HEADERS)
-    if json_data:
-        return __movie_list(json_data)
+    return __movie_list(json_data)
 
 ################################################################################
 def __movie_list(json_data):
     movie_infos = []
     if json_data:
-        movie_infos = utils.mt_map(lambda json_item: movie(json_item['movie']['ids']['slug'] if 'movie' in json_item else json_item['ids']['slug']), json_data)
-        if not movie_infos:
-            movie_infos = []
+        movie_infos = utils.mt_map(lambda json_item: movie(json_item['movie']['ids']['slug'] if 'movie' in json_item else json_item['ids']['slug']), json_data) or []
         movie_infos = filter(lambda movie_info: 'imdb_id' in movie_info and movie_info['imdb_id'], movie_infos)
-    return { 'movies': movie_infos }
+    return movie_infos
 
 ################################################################################
 # Shows
@@ -173,26 +168,21 @@ def show_episode(trakt_slug, season_index, episode_index):
 ################################################################################
 def shows_popular(page=1, limit=10):
     json_data = network.json_get_cached_mandatory(TRAKT_URL + '/shows/popular', expiration=cache.DAY, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
-    if json_data:
-        return __show_list(json_data)
+    return __show_list(json_data)
 
 ################################################################################
 def shows_trending(page=1, limit=10):
     json_data = network.json_get_cached_mandatory(TRAKT_URL + '/shows/trending', expiration=cache.HOUR, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
-    if json_data:
-        return __show_list(json_data)
+    return __show_list(json_data)
 
 ################################################################################
 def shows_search(query):
     json_data = network.json_get(TRAKT_URL + '/search', params={ 'query': query, 'type': 'show' }, headers=TRAKT_HEADERS)
-    if json_data:
-        return __show_list(json_data)
+    return __show_list(json_data)
 
 ################################################################################
 def __show_list(json_data):
     show_infos = []
     if json_data:
-        show_infos = utils.mt_map(lambda json_item: show(json_item['show']['ids']['slug'] if 'show' in json_item else json_item['ids']['slug']), json_data)
-        if not show_infos:
-            show_infos = []
-    return { 'shows': show_infos }
+        show_infos = utils.mt_map(lambda json_item: show(json_item['show']['ids']['slug'] if 'show' in json_item else json_item['ids']['slug']), json_data) or []
+    return show_infos
