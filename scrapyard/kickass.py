@@ -25,9 +25,9 @@ def __search(query):
             for rss_item in rss_data.entries:
                 magnet_infos.append(scraper.Magnet(rss_item.torrent_magneturi, rss_item.title, int(rss_item.torrent_seeds), int(rss_item.torrent_peers)))
     except requests.exceptions.HTTPError as exception:
-        if exception.response.status_code == 404:
-            pass
-        else:
+        if exception.response.status_code != 404:
             raise exception
+    except requests.exceptions.Timeout as exception:
+        pass
 
     return magnet_infos
