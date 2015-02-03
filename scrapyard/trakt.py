@@ -93,7 +93,9 @@ def __movie_list(json_data):
     movie_infos = []
     if json_data:
         movie_infos = utils.mt_map(lambda json_item: movie(json_item['movie']['ids']['slug'] if 'movie' in json_item else json_item['ids']['slug']), json_data)
-    movie_infos = filter(lambda movie_info: 'imdb_id' in movie_info and movie_info['imdb_id'], movie_infos)
+        if not movie_infos:
+            movie_infos = []
+        movie_infos = filter(lambda movie_info: 'imdb_id' in movie_info and movie_info['imdb_id'], movie_infos)
     return { 'movies': movie_infos }
 
 ################################################################################
@@ -139,11 +141,12 @@ def show(trakt_slug, seasons_needed=False):
 
 ################################################################################
 def show_season(trakt_slug, season_index):
+    episode_infos = []
+
     show_info = show(trakt_slug)
     if show_info:
         json_data = network.json_get_cached_mandatory(TRAKT_URL + '/shows/' + trakt_slug + '/seasons/' + str(season_index), expiration=cache.DAY, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
         if json_data:
-            episode_infos = []
             for json_item in json_data:
                 if json_item['first_aired'] and datetime.datetime.now(dateutil.tz.tzutc()) > dateutil.parser.parse(json_item['first_aired']):
                     episode_infos.append({
@@ -158,7 +161,7 @@ def show_season(trakt_slug, season_index):
                                             'first_aired':      json_item['first_aired'],
                                          })
 
-            return {'episodes': episode_infos }
+    return {'episodes': episode_infos }
 
 ################################################################################
 def show_episode(trakt_slug, season_index, episode_index):
@@ -190,4 +193,6 @@ def __show_list(json_data):
     show_infos = []
     if json_data:
         show_infos = utils.mt_map(lambda json_item: show(json_item['show']['ids']['slug'] if 'show' in json_item else json_item['ids']['slug']), json_data)
+        if not show_infos:
+            show_infos = []
     return { 'shows': show_infos }
