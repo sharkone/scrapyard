@@ -79,12 +79,12 @@ def __show_episode_magnets(providers, show_info, episode_info):
 
 # ################################################################################
 def shows_popular(page, limit):
-    return { 'shows': trakt.shows_popular(page, limit) }
+    return trakt.shows_popular(page, limit)
 
 ################################################################################
 def shows_trending(page, limit):
-    return { 'shows': trakt.shows_trending(page, limit) }
+    return trakt.shows_trending(page, limit)
 
 ################################################################################
 def shows_search(query):
-    return { 'shows': trakt.shows_search(query) }
+    return trakt.shows_search(query)
