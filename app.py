@@ -57,7 +57,10 @@ def api_movies_search():
 @app.route('/api/movie/<trakt_slug>')
 def api_movie(trakt_slug):
     result = scrapyard.movie(trakt_slug)
-    return flask.jsonify(result)
+    if result:
+        return flask.jsonify(result)
+    else:
+        flask.abort(404)
 
 ################################################################################
 # Shows
@@ -88,19 +91,28 @@ def api_shows_search():
 @app.route('/api/show/<trakt_slug>')
 def api_show(trakt_slug):
     result = scrapyard.show(trakt_slug)
-    return flask.jsonify(result)
+    if result:
+        return flask.jsonify(result)
+    else:
+        flask.abort(404)
 
 ################################################################################
 @app.route('/api/show/<trakt_slug>/season/<int:season_index>')
 def api_show_season(trakt_slug, season_index):
     result = scrapyard.show_season(trakt_slug, season_index)
-    return flask.jsonify(result)
+    if result:
+        return flask.jsonify(result)
+    else:
+        flask.abort(404)
 
 ################################################################################
 @app.route('/api/show/<trakt_slug>/season/<int:season_index>/episode/<int:episode_index>')
 def api_show_episode(trakt_slug, season_index, episode_index):
     result = scrapyard.show_episode(trakt_slug, season_index, episode_index)
-    return flask.jsonify(result)
+    if result:
+        return flask.jsonify(result)
+    else:
+        flask.abort(404)
 
 ################################################################################
 # Main

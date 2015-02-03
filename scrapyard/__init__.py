@@ -45,8 +45,9 @@ def movies_search(query):
 
 ################################################################################
 def movie(trakt_slug):
-    movie_info            = trakt.movie(trakt_slug, people_needed=True)
-    movie_info['magnets'] = cache.optional(__movie_magnets, expiration=cache.HOUR, cache_key=trakt_slug)([ kickass, yts ], movie_info) or []
+    movie_info = trakt.movie(trakt_slug, people_needed=True)
+    if movie_info:
+        movie_info['magnets'] = cache.optional(__movie_magnets, expiration=cache.HOUR, cache_key=trakt_slug)([ kickass, yts ], movie_info) or []
     return movie_info
 
 ################################################################################
@@ -65,9 +66,11 @@ def show_season(trakt_slug, season_index):
 
 ################################################################################
 def show_episode(trakt_slug, season_index, episode_index):
-    show_info               = trakt.show(trakt_slug)
-    episode_info            = trakt.show_episode(trakt_slug, season_index, episode_index)
-    episode_info['magnets'] = cache.optional(__show_episode_magnets, expiration=cache.HOUR, cache_key='{0}-{1}-{2}'.format(trakt_slug, season_index, episode_index))([ eztv, kickass ], show_info, episode_info) or []
+    episode_info = trakt.show_episode(trakt_slug, season_index, episode_index)
+    if episode_info:
+        show_info = trakt.show(trakt_slug)
+        if show_info:
+            episode_info['magnets'] = cache.optional(__show_episode_magnets, expiration=cache.HOUR, cache_key='{0}-{1}-{2}'.format(trakt_slug, season_index, episode_index))([ eztv, kickass ], show_info, episode_info) or []
     return episode_info
 
 ################################################################################

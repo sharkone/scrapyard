@@ -6,7 +6,7 @@ import sys
 import timeit
 
 ################################################################################
-TIMEOUT = 30
+TIMEOUT = 5
 
 ################################################################################
 # HTTP
@@ -33,7 +33,7 @@ def http_get(url, params={}, headers={}, timeout=TIMEOUT, logging=True):
     return __http_get(request, timeout, logging)
 
 ################################################################################
-def http_get_cached_mandatory(url, expiration, retry_delay=1, max_retries=20, params={}, headers={}, timeout=TIMEOUT):
+def http_get_cached_mandatory(url, expiration, retry_delay=1, max_retries=10, params={}, headers={}, timeout=TIMEOUT):
     request = requests.Request('GET', url, params=params, headers=headers)
     request = request.prepare()
     return cache.mandatory(__http_get, expiration=expiration, retry_delay=retry_delay, max_retries=max_retries, cache_key=request.url)(request=request, timeout=timeout)
@@ -53,7 +53,7 @@ def json_get(url, params={}, headers={}, timeout=TIMEOUT):
         return json.loads(data)
 
 ################################################################################
-def json_get_cached_mandatory(url, expiration, retry_delay=1, max_retries=20, params={}, headers={}, timeout=TIMEOUT):
+def json_get_cached_mandatory(url, expiration, retry_delay=1, max_retries=10, params={}, headers={}, timeout=TIMEOUT):
     data = http_get_cached_mandatory(url, expiration, retry_delay, max_retries, params, headers, timeout)
     if data:
         return json.loads(data)
@@ -73,7 +73,7 @@ def rss_get(url, params={}, headers={}, timeout=TIMEOUT):
         return feedparser.parse(data)
 
 ################################################################################
-def rss_get_cached_mandatory(url, expiration, retry_delay=1, max_retries=20, params={}, headers={}, timeout=TIMEOUT):
+def rss_get_cached_mandatory(url, expiration, retry_delay=1, max_retries=10, params={}, headers={}, timeout=TIMEOUT):
     data = http_get_cached_mandatory(url, expiration, retry_delay, max_retries, params, headers, timeout)
     if data:
         return feedparser.parse(data)
