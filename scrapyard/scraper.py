@@ -2,6 +2,7 @@ import base64
 import bcode
 import binascii
 import functools
+import newrelic.agent
 import network
 import random
 import requests
@@ -39,6 +40,7 @@ class Magnet:
 ################################################################################
 # Scraper
 ################################################################################
+@newrelic.agent.function_trace()
 def scrape_magnets(magnets, timeout=2):
     # Compile tracker magnet lists
     trackers = {}
