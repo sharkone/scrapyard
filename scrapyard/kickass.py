@@ -27,7 +27,7 @@ def __search(query):
     except requests.exceptions.HTTPError as exception:
         if exception.response.status_code != 404:
             raise exception
-    except requests.exceptions.Timeout as exception:
+    except requests.exceptions.Timeout:
         pass
 
     return magnet_infos
