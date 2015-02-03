@@ -5,7 +5,6 @@ import os
 import pickle
 import redis
 import sys
-import time
 import timeit
 import urlparse
 
@@ -35,20 +34,14 @@ def __set_cache(key, expiration, value):
     except redis.exceptions.RedisError as exception:
         sys.stderr.write('{0} : {1:3.1f}s : SET : {2} : {3}\n'.format('RDS:KO', timeit.default_timer() - start_time, key, repr(exception).replace(',)', ')')))
 
-def optional(func, expiration, cache_key=None):
-    def _optional(func, *args, **kwargs):
+def cache(func, expiration, cache_key=None):
+    def _cache(func, *args, **kwargs):
         key   = hashlib.md5(':'.join([func.__name__, str(args), str(kwargs)])).hexdigest() if not cache_key else cache_key
         value = __get_cache(key)
 
         # Update if needed
         if not value or value['expires_on'] < datetime.datetime.now():
-            data = None
-
-            try:
-                data = func(*args, **kwargs)
-            except Exception:
-                pass
-
+            data = func(*args, **kwargs)
             if data:
                 value = { 'expires_on': datetime.datetime.now() + expiration, 'data': data }
                 __set_cache(key, expiration, value)
@@ -56,46 +49,4 @@ def optional(func, expiration, cache_key=None):
         # Return what we got
         return value['data'] if value else None
 
-    return decorator.decorator(_optional, func)
-
-def mandatory(func, expiration, retry_delay, max_retries, cache_key=None):
-    def _mandatory(func, *args, **kwargs):
-        key   = hashlib.md5(':'.join([func.__name__, str(args), str(kwargs)])).hexdigest() if not cache_key else cache_key
-        value = __get_cache(key)
-
-        # Force initial update
-        if not value:
-            retry_count = max_retries
-            while retry_count > 0:
-                data = None
-
-                try:
-                    data = func(*args, **kwargs)
-                except Exception:
-                    pass
-
-                if data:
-                    value = { 'expires_on' : datetime.datetime.now() + expiration, 'data': data }
-                    __set_cache(key, expiration, value)
-                    break
-
-                time.sleep(retry_delay)
-                retry_count -= 1
-        else:
-            # Update if needed
-            if value['expires_on'] < datetime.datetime.now():
-                data = None
-
-                try:
-                    data = func(*args, **kwargs)
-                except Exception:
-                    pass
-
-                if data:
-                    value = { 'expires_on': datetime.datetime.now() + expiration, 'data': data }
-                    __set_cache(key, expiration, value)
-
-        # Return what we got
-        return value['data'] if value else None
-
-    return decorator.decorator(_mandatory, func)
+    return decorator.decorator(_cache, func)

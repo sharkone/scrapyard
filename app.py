@@ -33,25 +33,22 @@ def index():
 ################################################################################
 @app.route('/api/movies/popular')
 def api_movies_popular():
-    page   = flask.request.args.get('page', '1', type=int)
-    limit  = flask.request.args.get('limit', '10', type=int)
-    result = scrapyard.movies_popular(page, limit)
-    return flask.jsonify(result)
+    page  = flask.request.args.get('page', '1', type=int)
+    limit = flask.request.args.get('limit', '10', type=int)
+    return flask.jsonify({ 'movies': scrapyard.movies_popular(page, limit) })
 
 ################################################################################
 @app.route('/api/movies/trending')
 def api_movies_trending():
-    page   = flask.request.args.get('page', '1', type=int)
-    limit  = flask.request.args.get('limit', '10', type=int)
-    result = scrapyard.movies_trending(page, limit)
-    return flask.jsonify(result)
+    page  = flask.request.args.get('page', '1', type=int)
+    limit = flask.request.args.get('limit', '10', type=int)
+    return flask.jsonify({ 'movies': scrapyard.movies_trending(page, limit) })
 
 ################################################################################
 @app.route('/api/movies/search')
 def api_movies_search():
-    query  =  flask.request.args.get('query', '')
-    result = scrapyard.movies_search(query)
-    return flask.jsonify(result)
+    query = flask.request.args.get('query', '')
+    return flask.jsonify({ 'movies': scrapyard.movies_search(query) })
 
 ################################################################################
 @app.route('/api/movie/<trakt_slug>')
@@ -67,25 +64,22 @@ def api_movie(trakt_slug):
 ################################################################################
 @app.route('/api/shows/popular')
 def api_shows_popular():
-    page   = flask.request.args.get('page', '1', type=int)
-    limit  = flask.request.args.get('limit', '10', type=int)
-    result = scrapyard.shows_popular(page, limit)
-    return flask.jsonify(result)
+    page  = flask.request.args.get('page', '1', type=int)
+    limit = flask.request.args.get('limit', '10', type=int)
+    return flask.jsonify({ 'shows': scrapyard.shows_popular(page, limit) })
 
 ################################################################################
 @app.route('/api/shows/trending')
 def api_shows_trending():
-    page   = flask.request.args.get('page', '1', type=int)
-    limit  = flask.request.args.get('limit', '10', type=int)
-    result = scrapyard.shows_trending(page, limit)
-    return flask.jsonify(result)
+    page  = flask.request.args.get('page', '1', type=int)
+    limit = flask.request.args.get('limit', '10', type=int)
+    return flask.jsonify({ 'shows': scrapyard.shows_trending(page, limit) })
 
 ################################################################################
 @app.route('/api/shows/search')
 def api_shows_search():
-    query  = flask.request.args.get('query', '')
-    result = scrapyard.shows_search(query)
-    return flask.jsonify(result)
+    query = flask.request.args.get('query', '')
+    return flask.jsonify({ 'shows': scrapyard.shows_search(query) })
 
 ################################################################################
 @app.route('/api/show/<trakt_slug>')
@@ -100,8 +94,8 @@ def api_show(trakt_slug):
 @app.route('/api/show/<trakt_slug>/season/<int:season_index>')
 def api_show_season(trakt_slug, season_index):
     result = scrapyard.show_season(trakt_slug, season_index)
-    if result:
-        return flask.jsonify(result)
+    if result is not None:
+        return flask.jsonify({ 'episodes': result })
     else:
         flask.abort(404)
 

@@ -2,6 +2,7 @@ import cache
 import feedparser
 import json
 import requests
+import retrying
 import sys
 import timeit
 
@@ -10,6 +11,17 @@ TIMEOUT = 10
 
 ################################################################################
 # HTTP
+################################################################################
+def __retry_on_exception(exception):
+    if isinstance(exception, requests.exceptions.HTTPError) and exception.response.status_code == 404:
+        return False
+    return isinstance(exception, requests.exceptions.RequestException)
+
+################################################################################
+@retrying.retry(wait_fixed=1000, stop_max_delay=10000, retry_on_exception=__retry_on_exception)
+def __http_get_retry(request, timeout=TIMEOUT, logging=True):
+    return __http_get(request, timeout, logging)
+
 ################################################################################
 def __http_get(request, timeout=TIMEOUT, logging=True):
     start_time = timeit.default_timer()
@@ -33,53 +45,63 @@ def http_get(url, params={}, headers={}, timeout=TIMEOUT, logging=True):
     return __http_get(request, timeout, logging)
 
 ################################################################################
-def http_get_cached_mandatory(url, expiration, retry_delay=1, max_retries=10, params={}, headers={}, timeout=TIMEOUT):
+def http_get_cached(url, expiration, params={}, headers={}, timeout=TIMEOUT, logging=True):
     request = requests.Request('GET', url, params=params, headers=headers)
     request = request.prepare()
-    return cache.mandatory(__http_get, expiration=expiration, retry_delay=retry_delay, max_retries=max_retries, cache_key=request.url)(request=request, timeout=timeout)
+    return cache.cache(__http_get, expiration, request.url)(request, timeout, logging)
 
 ################################################################################
-def http_get_cached_optional(url, expiration, params={}, headers={}, timeout=TIMEOUT):
+def http_get_retry(url, params={}, headers={}, timeout=TIMEOUT, logging=True):
     request = requests.Request('GET', url, params=params, headers=headers)
     request = request.prepare()
-    return cache.optional(http_get, expiration=expiration, cache_key=request.url)(url, params=params, headers=headers, timeout=timeout)
+    return __http_get_retry(request, timeout, logging)
+
+################################################################################
+def http_get_retry_cached(url, expiration, params={}, headers={}, timeout=TIMEOUT, logging=True):
+    request = requests.Request('GET', url, params=params, headers=headers)
+    request = request.prepare()
+    return cache.cache(__http_get_retry, expiration, request.url)(request, timeout, logging)
 
 ################################################################################
 # JSON
 ################################################################################
-def json_get(url, params={}, headers={}, timeout=TIMEOUT):
-    data = http_get(url, params=params, headers=headers, timeout=timeout)
-    if data:
-        return json.loads(data)
+def json_get(url, params={}, headers={}, timeout=TIMEOUT, logging=True):
+    data = http_get(url, params, headers, timeout, logging)
+    return json.loads(data) if data else data
 
 ################################################################################
-def json_get_cached_mandatory(url, expiration, retry_delay=1, max_retries=10, params={}, headers={}, timeout=TIMEOUT):
-    data = http_get_cached_mandatory(url, expiration, retry_delay, max_retries, params, headers, timeout)
-    if data:
-        return json.loads(data)
+def json_get_cached(url, expiration, params={}, headers={}, timeout=TIMEOUT, logging=True):
+    data = http_get_cached(url, expiration, params, headers, timeout, logging)
+    return json.loads(data) if data else data
 
 ################################################################################
-def json_get_cached_optional(url, expiration, params={}, headers={}, timeout=TIMEOUT):
-    data = http_get_cached_optional(url, expiration, params, headers, timeout)
-    if data:
-        return json.loads(data)
+def json_get_retry(url, params={}, headers={}, timeout=TIMEOUT, logging=True):
+    data = http_get_retry(url, params, headers, timeout, logging)
+    return json.loads(data) if data else data
+
+################################################################################
+def json_get_retry_cached(url, expiration, params={}, headers={}, timeout=TIMEOUT, logging=True):
+    data = http_get_retry_cached(url, expiration, params, headers, timeout, logging)
+    return json.loads(data) if data else data
 
 ################################################################################
 # RSS
 ################################################################################
-def rss_get(url, params={}, headers={}, timeout=TIMEOUT):
-    data = http_get(url, params=params, headers=headers, timeout=timeout)
-    if data:
-        return feedparser.parse(data)
+def rss_get(url, params={}, headers={}, timeout=TIMEOUT, logging=True):
+    data = http_get(url, params, headers, timeout, logging)
+    return feedparser.parse(data) if data else data
 
 ################################################################################
-def rss_get_cached_mandatory(url, expiration, retry_delay=1, max_retries=10, params={}, headers={}, timeout=TIMEOUT):
-    data = http_get_cached_mandatory(url, expiration, retry_delay, max_retries, params, headers, timeout)
-    if data:
-        return feedparser.parse(data)
+def rss_get_cached(url, expiration, params={}, headers={}, timeout=TIMEOUT, logging=True):
+    data = http_get_cached(url, expiration, params, headers, timeout, logging)
+    return feedparser.parse(data) if data else data
 
 ################################################################################
-def rss_get_cached_optional(url, expiration, params={}, headers={}, timeout=TIMEOUT):
-    data = http_get_cached_optional(url, expiration, params, headers, timeout)
-    if data:
-        return feedparser.parse(data)
+def rss_get_retry(url, params={}, headers={}, timeout=TIMEOUT, logging=True):
+    data = http_get_retry(url, params, headers, timeout, logging)
+    return feedparser.parse(data) if data else data
+
+################################################################################
+def rss_get_retry_cached(url, expiration, params={}, headers={}, timeout=TIMEOUT, logging=True):
+    data = http_get_retry_cached(url, expiration, params, headers, timeout, logging)
+    return feedparser.parse(data) if data else data

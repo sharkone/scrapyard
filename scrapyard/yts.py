@@ -10,7 +10,7 @@ def movie(movie_info):
     magnet_infos = []
 
     if movie_info['imdb_id']:
-        json_data = network.json_get_cached_optional(YTS_URL + '/api/v2/list_movies.json', expiration=cache.HOUR, params={ 'query_term': movie_info['imdb_id'] })
+        json_data = network.json_get_cached(YTS_URL + '/api/v2/list_movies.json', expiration=cache.HOUR, params={ 'query_term': movie_info['imdb_id'] })
         if 'data' in json_data:
             if 'movies' in json_data['data']:
                 for movie_item in json_data['data']['movies']:
