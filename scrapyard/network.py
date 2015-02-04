@@ -88,7 +88,11 @@ def http_get_old(url, params={}, headers={}, timeout=TIMEOUT, logging=True):
 # JSON
 ################################################################################
 def json_get(url, cache_expiration, params={}, headers={}):
-    return json.loads(http_get(url, cache_expiration, params=params, headers=headers))
+    http_data = http_get(url, cache_expiration, params=params, headers=headers)
+    try:
+        return json.loads(http_data)
+    except ValueError:
+        raise exceptions.HTTPError(404)
 
 ################################################################################
 # RSS
