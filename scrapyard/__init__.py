@@ -1,4 +1,5 @@
 import cache
+import datetime
 import eztv
 import functools
 import kickass
@@ -45,9 +46,22 @@ def movies_search(query):
 
 ################################################################################
 def movie(trakt_slug):
-    movie_info = trakt.movie(trakt_slug, people_needed=True)
-    if movie_info:
-        movie_info['magnets'] = cache.cache(__movie_magnets, expiration=cache.HOUR, cache_key=trakt_slug)([ kickass, yts ], movie_info) or []
+    movie_info            = trakt.movie(trakt_slug, people_needed=True)
+    movie_info['magnets'] = []
+
+    cache_key     = trakt_slug
+    cache_results = cache.get(cache_key)
+    if cache_results and cache_results['expires_on'] > datetime.datetime.now():
+        # Cache valid
+        movie_info['magnets'] = cache_results['data']
+    else:
+        # Cache expired
+        # TODO: Kill if too long?
+        scrape_results = { 'expires_on': datetime.datetime.now() + cache.HOUR, 'data': __movie_magnets([ kickass, yts ], movie_info) }
+        if scrape_results:
+            cache.set(cache_key, scrape_results, cache.HOUR)
+            movie_info['magnets'] = scrape_results['data']
+
     return movie_info
 
 ################################################################################
@@ -66,11 +80,23 @@ def show_season(trakt_slug, season_index):
 
 ################################################################################
 def show_episode(trakt_slug, season_index, episode_index):
-    episode_info = trakt.show_episode(trakt_slug, season_index, episode_index)
-    if episode_info:
-        show_info = trakt.show(trakt_slug)
-        if show_info:
-            episode_info['magnets'] = cache.cache(__show_episode_magnets, expiration=cache.HOUR, cache_key='{0}-{1}-{2}'.format(trakt_slug, season_index, episode_index))([ eztv, kickass ], show_info, episode_info) or []
+    show_info               = trakt.show(trakt_slug)
+    episode_info            = trakt.show_episode(trakt_slug, season_index, episode_index)
+    episode_info['magnets'] = []
+
+    cache_key     = '{0}-{1}-{2}'.format(trakt_slug, season_index, episode_index)
+    cache_results = cache.get(cache_key)
+    if cache_results and cache_results['expires_on'] > datetime.datetime.now():
+        # Cache valid
+        episode_info['magnets'] = cache_results['data']
+    else:
+        # Cache expired
+        # TODO: Kill if too long?
+        scrape_results = { 'expires_on': datetime.datetime.now() + cache.HOUR, 'data': __show_episode_magnets([ eztv, kickass ], show_info, episode_info) }
+        if scrape_results:
+            cache.set(cache_key, scrape_results, cache.HOUR)
+            episode_info['magnets'] = scrape_results['data']
+
     return episode_info
 
 ################################################################################

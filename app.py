@@ -33,80 +33,94 @@ def index():
 ################################################################################
 @app.route('/api/movies/popular')
 def api_movies_popular():
-    page  = flask.request.args.get('page', '1', type=int)
-    limit = flask.request.args.get('limit', '10', type=int)
-    return flask.jsonify({ 'movies': scrapyard.movies_popular(page, limit) })
+    try:
+        page  = flask.request.args.get('page', '1', type=int)
+        limit = flask.request.args.get('limit', '10', type=int)
+        return flask.jsonify({ 'movies': scrapyard.movies_popular(page, limit) })
+    except scrapyard.exceptions.HTTPError as exception:
+        flask.abort(exception.status_code)
 
 ################################################################################
 @app.route('/api/movies/trending')
 def api_movies_trending():
-    page  = flask.request.args.get('page', '1', type=int)
-    limit = flask.request.args.get('limit', '10', type=int)
-    return flask.jsonify({ 'movies': scrapyard.movies_trending(page, limit) })
+    try:
+        page  = flask.request.args.get('page', '1', type=int)
+        limit = flask.request.args.get('limit', '10', type=int)
+        return flask.jsonify({ 'movies': scrapyard.movies_trending(page, limit) })
+    except scrapyard.exceptions.HTTPError as exception:
+        flask.abort(exception.status_code)
 
 ################################################################################
 @app.route('/api/movies/search')
 def api_movies_search():
-    query = flask.request.args.get('query', '')
-    return flask.jsonify({ 'movies': scrapyard.movies_search(query) })
+    try:
+        query = flask.request.args.get('query', '')
+        return flask.jsonify({ 'movies': scrapyard.movies_search(query) })
+    except scrapyard.exceptions.HTTPError as exception:
+        flask.abort(exception.status_code)
 
 ################################################################################
 @app.route('/api/movie/<trakt_slug>')
 def api_movie(trakt_slug):
-    result = scrapyard.movie(trakt_slug)
-    if result:
-        return flask.jsonify(result)
-    else:
-        flask.abort(404)
+    try:
+        return flask.jsonify(scrapyard.movie(trakt_slug))
+    except scrapyard.exceptions.HTTPError as exception:
+        flask.abort(exception.status_code)
 
 ################################################################################
 # Shows
 ################################################################################
 @app.route('/api/shows/popular')
 def api_shows_popular():
-    page  = flask.request.args.get('page', '1', type=int)
-    limit = flask.request.args.get('limit', '10', type=int)
-    return flask.jsonify({ 'shows': scrapyard.shows_popular(page, limit) })
+    try:
+        page  = flask.request.args.get('page', '1', type=int)
+        limit = flask.request.args.get('limit', '10', type=int)
+        return flask.jsonify({ 'shows': scrapyard.shows_popular(page, limit) })
+    except scrapyard.exceptions.HTTPError as exception:
+        flask.abort(exception.status_code)
 
 ################################################################################
 @app.route('/api/shows/trending')
 def api_shows_trending():
-    page  = flask.request.args.get('page', '1', type=int)
-    limit = flask.request.args.get('limit', '10', type=int)
-    return flask.jsonify({ 'shows': scrapyard.shows_trending(page, limit) })
+    try:
+        page  = flask.request.args.get('page', '1', type=int)
+        limit = flask.request.args.get('limit', '10', type=int)
+        return flask.jsonify({ 'shows': scrapyard.shows_trending(page, limit) })
+    except scrapyard.exceptions.HTTPError as exception:
+        flask.abort(exception.status_code)
 
 ################################################################################
 @app.route('/api/shows/search')
 def api_shows_search():
-    query = flask.request.args.get('query', '')
-    return flask.jsonify({ 'shows': scrapyard.shows_search(query) })
+    try:
+        query = flask.request.args.get('query', '')
+        return flask.jsonify({ 'shows': scrapyard.shows_search(query) })
+    except scrapyard.exceptions.HTTPError as exception:
+        flask.abort(exception.status_code)
 
 ################################################################################
 @app.route('/api/show/<trakt_slug>')
 def api_show(trakt_slug):
-    result = scrapyard.show(trakt_slug)
-    if result:
-        return flask.jsonify(result)
-    else:
-        flask.abort(404)
+    try:
+        return flask.jsonify(scrapyard.show(trakt_slug))
+    except scrapyard.exceptions.HTTPError as exception:
+        flask.abort(exception.status_code)
 
 ################################################################################
 @app.route('/api/show/<trakt_slug>/season/<int:season_index>')
 def api_show_season(trakt_slug, season_index):
-    result = scrapyard.show_season(trakt_slug, season_index)
-    if result is not None:
-        return flask.jsonify({ 'episodes': result })
-    else:
-        flask.abort(404)
+    try:
+        return flask.jsonify({ 'episodes': scrapyard.show_season(trakt_slug, season_index) })
+    except scrapyard.exceptions.HTTPError as exception:
+        flask.abort(exception.status_code)
 
 ################################################################################
 @app.route('/api/show/<trakt_slug>/season/<int:season_index>/episode/<int:episode_index>')
 def api_show_episode(trakt_slug, season_index, episode_index):
-    result = scrapyard.show_episode(trakt_slug, season_index, episode_index)
-    if result:
-        return flask.jsonify(result)
-    else:
-        flask.abort(404)
+    try:
+        return flask.jsonify(scrapyard.show_episode(trakt_slug, season_index, episode_index))
+    except scrapyard.exceptions.HTTPError as exception:
+        flask.abort(exception.status_code)
 
 ################################################################################
 # Main

@@ -2,6 +2,7 @@ import cache
 import datetime
 import dateutil.parser
 import dateutil.tz
+import exceptions
 import network
 import requests
 import utils
@@ -14,81 +15,76 @@ TRAKT_HEADERS = { 'content-type': 'application/json', 'trakt-api-version': '2', 
 ################################################################################
 def movie(trakt_slug, people_needed=False):
     if trakt_slug:
-        try:
-            json_data = network.json_get_retry_cached(TRAKT_URL + '/movies/' + trakt_slug, expiration=cache.WEEK, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
-            if json_data:
-                result =    {
-                                'trakt_slug':       json_data['ids']['slug'],
-                                'imdb_id':          json_data['ids']['imdb'],
-                                'title':            json_data['title'],
-                                'year':             json_data['year'],
-                                'overview':         json_data['overview'],
-                                'tagline':          json_data['tagline'],
-                                'thumb':            json_data['images']['poster']['full'],
-                                'art':              json_data['images']['fanart']['full'],
-                                'runtime':          (json_data['runtime'] * 60 * 1000) if json_data['runtime'] else 0,
-                                'genres':           [genre.capitalize() for genre in json_data['genres']],
-                                'rating':           json_data['rating'],
-                                'released':         json_data['released'],
-                                'certification':    json_data['certification']
-                            }
+        json_data = network.json_get(TRAKT_URL + '/movies/' + trakt_slug, cache_expiration=cache.WEEK, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
+        if json_data:
+            result =    {
+                            'trakt_slug':       json_data['ids']['slug'],
+                            'imdb_id':          json_data['ids']['imdb'],
+                            'title':            json_data['title'],
+                            'year':             json_data['year'],
+                            'overview':         json_data['overview'],
+                            'tagline':          json_data['tagline'],
+                            'thumb':            json_data['images']['poster']['full'],
+                            'art':              json_data['images']['fanart']['full'],
+                            'runtime':          (json_data['runtime'] * 60 * 1000) if json_data['runtime'] else 0,
+                            'genres':           [genre.capitalize() for genre in json_data['genres']],
+                            'rating':           json_data['rating'],
+                            'released':         json_data['released'],
+                            'certification':    json_data['certification']
+                        }
 
-                if people_needed:
-                    result['people'] = { 'cast': [], 'crew': { 'directing': [], 'production': [], 'writing': [] } }
-                    json_data = network.json_get_retry_cached(TRAKT_URL + '/movies/' + trakt_slug + '/people', expiration=cache.WEEK, params={ 'extended': 'images' }, headers=TRAKT_HEADERS)
-                    if json_data:
-                        if 'cast' in json_data:
-                            for json_item in json_data['cast']:
-                                result['people']['cast'].append({
-                                                                    'name':         json_item['person']['name'],
-                                                                    'headshot':     json_item['person']['images']['headshot']['full'],
-                                                                    'character':    json_item['character']
-                                                                })
+            if people_needed:
+                result['people'] = { 'cast': [], 'crew': { 'directing': [], 'production': [], 'writing': [] } }
+                json_data = network.json_get(TRAKT_URL + '/movies/' + trakt_slug + '/people', cache_expiration=cache.WEEK, params={ 'extended': 'images' }, headers=TRAKT_HEADERS)
+                if json_data:
+                    if 'cast' in json_data:
+                        for json_item in json_data['cast']:
+                            result['people']['cast'].append({
+                                                                'name':         json_item['person']['name'],
+                                                                'headshot':     json_item['person']['images']['headshot']['full'],
+                                                                'character':    json_item['character']
+                                                            })
 
-                        if 'crew' in json_data:
-                            if 'directing' in json_data['crew']:
-                                for json_item in json_data['crew']['directing']:
-                                    result['people']['crew']['directing'].append({
-                                                                                    'name':     json_item['person']['name'],
-                                                                                    'headshot': json_item['person']['images']['headshot']['full'],
-                                                                                    'job':      json_item['job']
-                                                                                 })
+                    if 'crew' in json_data:
+                        if 'directing' in json_data['crew']:
+                            for json_item in json_data['crew']['directing']:
+                                result['people']['crew']['directing'].append({
+                                                                                'name':     json_item['person']['name'],
+                                                                                'headshot': json_item['person']['images']['headshot']['full'],
+                                                                                'job':      json_item['job']
+                                                                             })
 
-                            if 'production' in json_data['crew']:
-                                for json_item in json_data['crew']['production']:
-                                    result['people']['crew']['production'].append({
-                                                                                    'name':     json_item['person']['name'],
-                                                                                    'headshot': json_item['person']['images']['headshot']['full'],
-                                                                                    'job':      json_item['job']
-                                                                                  })
+                        if 'production' in json_data['crew']:
+                            for json_item in json_data['crew']['production']:
+                                result['people']['crew']['production'].append({
+                                                                                'name':     json_item['person']['name'],
+                                                                                'headshot': json_item['person']['images']['headshot']['full'],
+                                                                                'job':      json_item['job']
+                                                                              })
 
-                            if 'writing' in json_data['crew']:
-                                for json_item in json_data['crew']['writing']:
-                                    result['people']['crew']['writing'].append({
-                                                                                    'name':     json_item['person']['name'],
-                                                                                    'headshot': json_item['person']['images']['headshot']['full'],
-                                                                                    'job':      json_item['job']
-                                                                                })
+                        if 'writing' in json_data['crew']:
+                            for json_item in json_data['crew']['writing']:
+                                result['people']['crew']['writing'].append({
+                                                                                'name':     json_item['person']['name'],
+                                                                                'headshot': json_item['person']['images']['headshot']['full'],
+                                                                                'job':      json_item['job']
+                                                                            })
 
-                return result
-
-        except requests.exceptions.HTTPError as exception:
-            if exception.response.status_code == 404:
-                pass
+            return result
 
 ################################################################################
 def movies_popular(page=1, limit=10):
-    json_data = network.json_get_retry_cached(TRAKT_URL + '/movies/popular', expiration=cache.DAY, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
+    json_data = network.json_get(TRAKT_URL + '/movies/popular', cache_expiration=cache.DAY, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
     return __movie_list(json_data)
 
 ################################################################################
 def movies_trending(page=1, limit=10):
-    json_data = network.json_get_retry_cached(TRAKT_URL + '/movies/trending', expiration=cache.HOUR, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
+    json_data = network.json_get(TRAKT_URL + '/movies/trending', cache_expiration=cache.HOUR, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
     return __movie_list(json_data)
 
 ################################################################################
 def movies_search(query):
-    json_data = network.json_get_retry('{0}/{1}'.format(TRAKT_URL, 'search'), params={ 'query': query, 'type': 'movie' }, headers=TRAKT_HEADERS)
+    json_data = network.json_get(TRAKT_URL + '/search', cache_expiration=cache.HOUR, params={ 'query': query, 'type': 'movie' }, headers=TRAKT_HEADERS)
     return __movie_list(json_data)
 
 ################################################################################
@@ -104,95 +100,87 @@ def __movie_list(json_data):
 ################################################################################
 def show(trakt_slug, seasons_needed=False):
     if trakt_slug:
-        try:
-            json_data = network.json_get_retry_cached(TRAKT_URL + '/shows/' + trakt_slug, expiration=cache.WEEK, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
-            if json_data:
-                result =    {
-                                'trakt_slug':       json_data['ids']['slug'],
-                                'imdb_id':          json_data['ids']['imdb'],
-                                'title':            json_data['title'],
-                                'year':             json_data['year'],
-                                'overview':         json_data['overview'],
-                                'studio':           json_data['network'],
-                                'thumb':            json_data['images']['poster']['full'],
-                                'art':              json_data['images']['fanart']['full'],
-                                'runtime':          (json_data['runtime'] * 60 * 1000) if json_data['runtime'] else 0,
-                                'genres':           [genre.capitalize() for genre in json_data['genres']],
-                                'rating':           json_data['rating'],
-                                'first_aired':      json_data['first_aired'],
-                                'certification':    json_data['certification']
-                            }
+        json_data = network.json_get(TRAKT_URL + '/shows/' + trakt_slug, cache_expiration=cache.WEEK, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
+        if json_data:
+            result =    {
+                            'trakt_slug':       json_data['ids']['slug'],
+                            'imdb_id':          json_data['ids']['imdb'],
+                            'title':            json_data['title'],
+                            'year':             json_data['year'],
+                            'overview':         json_data['overview'],
+                            'studio':           json_data['network'],
+                            'thumb':            json_data['images']['poster']['full'],
+                            'art':              json_data['images']['fanart']['full'],
+                            'runtime':          (json_data['runtime'] * 60 * 1000) if json_data['runtime'] else 0,
+                            'genres':           [genre.capitalize() for genre in json_data['genres']],
+                            'rating':           json_data['rating'],
+                            'first_aired':      json_data['first_aired'],
+                            'certification':    json_data['certification']
+                        }
 
-                if seasons_needed:
-                    result['seasons'] = []
-                    json_data = network.json_get_retry_cached(TRAKT_URL + '/shows/' + trakt_slug + '/seasons', expiration=cache.WEEK, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
-                    if json_data:
-                        for json_item in json_data:
-                            if json_item['number'] > 0:
-                                result['seasons'].append({
-                                                            'show_title':       result['title'],
-                                                            'season_index':     json_item['number'],
-                                                            'title':            'Season {0}'.format(json_item['number']),
-                                                            'overview':         json_item['overview'],
-                                                            'episode_count':    json_item['episode_count'],
-                                                            'thumb':            json_item['images']['poster']['full'],
-                                                            'art':              result['art']
-                                                        })
+            if seasons_needed:
+                result['seasons'] = []
+                json_data = network.json_get(TRAKT_URL + '/shows/' + trakt_slug + '/seasons', cache_expiration=cache.WEEK, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
+                if json_data:
+                    for json_item in json_data:
+                        if json_item['number'] > 0:
+                            result['seasons'].append({
+                                                        'show_title':       result['title'],
+                                                        'season_index':     json_item['number'],
+                                                        'title':            'Season {0}'.format(json_item['number']),
+                                                        'overview':         json_item['overview'],
+                                                        'episode_count':    json_item['episode_count'],
+                                                        'thumb':            json_item['images']['poster']['full'],
+                                                        'art':              result['art']
+                                                    })
 
-                return result
-
-        except requests.exceptions.HTTPError as exception:
-            if exception.response.status_code == 404:
-                pass
+            return result
 
 ################################################################################
 def show_season(trakt_slug, season_index):
     show_info = show(trakt_slug)
     if show_info:
-        try:
-            json_data = network.json_get_retry_cached(TRAKT_URL + '/shows/' + trakt_slug + '/seasons/' + str(season_index), expiration=cache.DAY, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
-            if json_data:
-                episode_infos = []
+        json_data = network.json_get(TRAKT_URL + '/shows/' + trakt_slug + '/seasons/' + str(season_index), cache_expiration=cache.DAY, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
+        if json_data:
+            episode_infos = []
 
-                for json_item in json_data:
-                    if json_item['first_aired'] and datetime.datetime.now(dateutil.tz.tzutc()) > dateutil.parser.parse(json_item['first_aired']):
-                        episode_infos.append({
-                                                'show_title':       show_info['title'],
-                                                'season_index':     json_item['season'],
-                                                'episode_index':    json_item['number'],
-                                                'title':            json_item['title'],
-                                                'thumb':            json_item['images']['screenshot']['full'],
-                                                'art':              json_item['images']['screenshot']['full'],
-                                                'overview':         json_item['overview'],
-                                                'rating':           json_item['rating'],
-                                                'first_aired':      json_item['first_aired'],
-                                             })
+            for json_item in json_data:
+                if json_item['first_aired'] and datetime.datetime.now(dateutil.tz.tzutc()) > dateutil.parser.parse(json_item['first_aired']):
+                    episode_infos.append({
+                                            'show_title':       show_info['title'],
+                                            'season_index':     json_item['season'],
+                                            'episode_index':    json_item['number'],
+                                            'title':            json_item['title'],
+                                            'thumb':            json_item['images']['screenshot']['full'],
+                                            'art':              json_item['images']['screenshot']['full'],
+                                            'overview':         json_item['overview'],
+                                            'rating':           json_item['rating'],
+                                            'first_aired':      json_item['first_aired'],
+                                         })
 
-                return episode_infos
-
-        except requests.exceptions.HTTPError as exception:
-            if exception.response.status_code == 404:
-                pass
+            return episode_infos
 
 ################################################################################
 def show_episode(trakt_slug, season_index, episode_index):
     episode_infos = show_season(trakt_slug, season_index)
-    if episode_infos:
-        return next((episode_info for episode_info in episode_infos if episode_info['episode_index'] == episode_index), None)
+    for episode_info in episode_infos:
+        if episode_info['episode_index'] == episode_index:
+            return episode_info
+    raise exceptions.HTTPError(404)
 
 ################################################################################
 def shows_popular(page=1, limit=10):
-    json_data = network.json_get_retry_cached(TRAKT_URL + '/shows/popular', expiration=cache.DAY, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
+    json_data = network.json_get(TRAKT_URL + '/shows/popular', cache_expiration=cache.DAY, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
     return __show_list(json_data)
 
 ################################################################################
 def shows_trending(page=1, limit=10):
-    json_data = network.json_get_retry_cached(TRAKT_URL + '/shows/trending', expiration=cache.HOUR, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
+    json_data = network.json_get(TRAKT_URL + '/shows/trending', cache_expiration=cache.HOUR, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
     return __show_list(json_data)
 
 ################################################################################
 def shows_search(query):
-    json_data = network.json_get_retry(TRAKT_URL + '/search', params={ 'query': query, 'type': 'show' }, headers=TRAKT_HEADERS)
+    json_data = network.json_get(TRAKT_URL + '/search', cache_expiration=cache.HOUR, params={ 'query': query, 'type': 'show' }, headers=TRAKT_HEADERS)
     return __show_list(json_data)
 
 ################################################################################

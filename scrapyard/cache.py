@@ -1,6 +1,4 @@
 import datetime
-import decorator
-import hashlib
 import os
 import pickle
 import redis
@@ -15,7 +13,7 @@ WEEK = datetime.timedelta(days=1)
 redis_url  = urlparse.urlparse(os.getenv('REDISCLOUD_URL', 'redis://{0}:{1}'.format(os.getenv('IP', '0.0.0.0'), 6379)))
 redis_pool = redis.ConnectionPool(max_connections=10, host=redis_url.hostname, port=redis_url.port, password=redis_url.password)
 
-def __get_cache(key):
+def get(key):
     start_time = timeit.default_timer()
     try:
         redis_cache = redis.StrictRedis(connection_pool=redis_pool)
@@ -26,7 +24,7 @@ def __get_cache(key):
     except redis.exceptions.RedisError as exception:
         sys.stderr.write('{0} : {1:3.1f}s : GET : {2} : {3}\n'.format('RDS:KO', timeit.default_timer() - start_time, key, repr(exception).replace(',)', ')')))
 
-def __set_cache(key, expiration, value):
+def set(key, value, expiration):
     start_time = timeit.default_timer()
     try:
         redis_cache = redis.StrictRedis(connection_pool=redis_pool)
@@ -34,28 +32,3 @@ def __set_cache(key, expiration, value):
         # sys.stdout.write('{0} : {1:3.1f}s : SET : {2}\n'.format('RDS:OK', timeit.default_timer() - start_time, key))
     except redis.exceptions.RedisError as exception:
         sys.stderr.write('{0} : {1:3.1f}s : SET : {2} : {3}\n'.format('RDS:KO', timeit.default_timer() - start_time, key, repr(exception).replace(',)', ')')))
-
-def cache(func, expiration, cache_key=None, exception_handler=None):
-    def _cache(func, *args, **kwargs):
-        key   = hashlib.md5(':'.join([func.__name__, str(args), str(kwargs)])).hexdigest() if not cache_key else cache_key
-        value = __get_cache(key)
-
-        if not value or value['expires_on'] < datetime.datetime.now():
-            data = None
-
-            try:
-                data = func(*args, **kwargs)
-            except Exception as exception:
-                if not value:
-                    # Cache missed, we must fail here
-                    raise exception
-
-            # Update cache with new data
-            if data:
-                value = { 'expires_on': datetime.datetime.now() + expiration, 'data': data }
-                __set_cache(key, expiration, value)
-
-        # Return what we got
-        return value['data'] if value else None
-
-    return decorator.decorator(_cache, func)
