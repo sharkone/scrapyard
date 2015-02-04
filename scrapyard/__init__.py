@@ -59,7 +59,7 @@ def movie(trakt_slug):
         # TODO: Kill if too long?
         scrape_results = { 'expires_on': datetime.datetime.now() + cache.HOUR, 'data': __movie_magnets([ kickass, yts ], movie_info) }
         if scrape_results:
-            cache.set(cache_key, scrape_results, cache.HOUR)
+            cache.set(cache_key, scrape_results)
             movie_info['magnets'] = scrape_results['data']
 
     return movie_info
@@ -94,7 +94,7 @@ def show_episode(trakt_slug, season_index, episode_index):
         # TODO: Kill if too long?
         scrape_results = { 'expires_on': datetime.datetime.now() + cache.HOUR, 'data': __show_episode_magnets([ eztv, kickass ], show_info, episode_info) }
         if scrape_results:
-            cache.set(cache_key, scrape_results, cache.HOUR)
+            cache.set(cache_key, scrape_results)
             episode_info['magnets'] = scrape_results['data']
 
     return episode_info

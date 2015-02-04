@@ -37,7 +37,7 @@ def http_get(url, cache_expiration, params={}, headers={}):
         while (timeit.default_timer() - start_time) < TIMEOUT_TOTAL:
             try:
                 http_result = { 'expires_on': datetime.datetime.now() + cache_expiration, 'data': __http_get(request, timeout=TIMEOUT) }
-                cache.set(request.url, http_result, cache_expiration)
+                cache.set(request.url, http_result)
                 return http_result['data']
             except requests.exceptions.HTTPError as exception:
                 if exception.response.status_code == 404:
@@ -45,7 +45,7 @@ def http_get(url, cache_expiration, params={}, headers={}):
                     raise exceptions.HTTPError(404)
                 # Retry after delay
                 time.sleep(1)
-            except requests.exceptions.Timeout:
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
                 # Retry right away
                 pass
         raise exceptions.HTTPError(503)
@@ -58,7 +58,7 @@ def http_get(url, cache_expiration, params={}, headers={}):
             # Cache expired, quickly try to update it, return cached data on failure
             try:
                 http_result = { 'expires_on': datetime.datetime.now() + cache_expiration, 'data': http_get(request, timeout=TIMEOUT) }
-                cache.set(request.url, http_result, cache_expiration)
+                cache.set(request.url, http_result)
                 return http_result['data']
             except Exception:
                 return cache_result['data']
