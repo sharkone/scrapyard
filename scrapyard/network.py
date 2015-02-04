@@ -23,7 +23,7 @@ def __http_get(request, timeout):
         response.raise_for_status()
         return response.content
     except requests.exceptions.RequestException as exception:
-        sys.stderr.write('{0} : {1:3.1f}s : GET : {2} : {3}\n'.format('NET:KO', timeit.default_timer() - start_time, exception.response.url, repr(exception).replace(',)', ')')))
+        sys.stderr.write('{0} : {1:3.1f}s : GET : {2} : {3}\n'.format('NET:KO', timeit.default_timer() - start_time, request.url, repr(exception).replace(',)', ')')))
         raise exception
 
 ################################################################################
@@ -57,7 +57,7 @@ def http_get(url, cache_expiration, params={}, headers={}):
         else:
             # Cache expired, quickly try to update it, return cached data on failure
             try:
-                http_result = { 'expires_on': datetime.datetime.now() + cache_expiration, 'data': http_get_new(request, timeout=TIMEOUT) }
+                http_result = { 'expires_on': datetime.datetime.now() + cache_expiration, 'data': http_get(request, timeout=TIMEOUT) }
                 cache.set(request.url, http_result, cache_expiration)
                 return http_result['data']
             except Exception:
