@@ -151,7 +151,7 @@ def __scrape_tracker_http(tracker, magnets, timeout):
     url = urlparse.urlunsplit((tracker.scheme, tracker.netloc, tracker.path, query_string, tracker.fragment))
 
     try:
-        http_data = network.http_get_old(url, timeout=timeout, logging=False)
+        http_data = network.http_get_old(url, timeout=timeout)
         if http_data:
             decoded_response = bcode.bdecode(http_data)
             for info_hash, stats in decoded_response['files'].iteritems():
