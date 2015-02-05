@@ -7,7 +7,7 @@ import network
 import requests
 import utils
 
-TRAKT_URL     = 'https://api.trakt.tv'
+TRAKT_URL     = 'https://api-v2launch.trakt.tv'
 TRAKT_HEADERS = { 'content-type': 'application/json', 'trakt-api-version': '2', 'trakt-api-key': '64cf92c702ff753cc14a6d421824efcd32f22058f79bf6d637fa92e23229f35f' }
 
 ################################################################################
