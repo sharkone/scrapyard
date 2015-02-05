@@ -24,11 +24,14 @@ def get(key):
     except redis.exceptions.RedisError as exception:
         sys.stderr.write('{0} : {1:3.1f}s : GET : {2} : {3}\n'.format('RDS:KO', timeit.default_timer() - start_time, key, repr(exception).replace(',)', ')')))
 
-def set(key, value):
+def set(key, value, expiration=None):
     start_time = timeit.default_timer()
     try:
         redis_cache = redis.StrictRedis(connection_pool=redis_pool)
-        redis_cache.set(key, pickle.dumps(value))
+        if expiration:
+            redis_cache.setex(key, expiration.total_seconds(), pickle.dumps(value))
+        else:
+            redis_cache.set(key, pickle.dumps(value))
         # sys.stdout.write('{0} : {1:3.1f}s : SET : {2}\n'.format('RDS:OK', timeit.default_timer() - start_time, key))
     except redis.exceptions.RedisError as exception:
         sys.stderr.write('{0} : {1:3.1f}s : SET : {2} : {3}\n'.format('RDS:KO', timeit.default_timer() - start_time, key, repr(exception).replace(',)', ')')))

@@ -9,8 +9,9 @@ import time
 import timeit
 
 ################################################################################
-TIMEOUT       = 1
-TIMEOUT_TOTAL = 10
+TIMEOUT_CONNECT = 1
+TIMEOUT_READ    = 1
+TIMEOUT_TOTAL   = 10
 
 ################################################################################
 # HTTP
@@ -21,13 +22,14 @@ def __http_get(request, timeout):
         session  = requests.Session()
         response = session.send(request, timeout=timeout)
         response.raise_for_status()
+        sys.stdout.write('{0} : {1:3.1f}s : GET : {2}\n'.format('NET:OK', timeit.default_timer() - start_time, request.url))
         return response.content
     except requests.exceptions.RequestException as exception:
         sys.stderr.write('{0} : {1:3.1f}s : GET : {2} : {3}\n'.format('NET:KO', timeit.default_timer() - start_time, request.url, repr(exception).replace(',)', ')')))
         raise exception
 
 ################################################################################
-def http_get(url, cache_expiration, params={}, headers={}):
+def http_get(url, expiration, cache_expiration=cache.WEEK, params={}, headers={}):
     request      = requests.Request('GET', url, params=params, headers=headers).prepare()
     cache_result = cache.get(request.url)
 
@@ -36,7 +38,7 @@ def http_get(url, cache_expiration, params={}, headers={}):
         http_result = None
         while (timeit.default_timer() - start_time) < TIMEOUT_TOTAL:
             try:
-                http_result = { 'expires_on': datetime.datetime.now() + cache_expiration, 'data': __http_get(request, timeout=TIMEOUT) }
+                http_result = { 'expires_on': datetime.datetime.now() + expiration, 'data': __http_get(request, timeout=(TIMEOUT_CONNECT, TIMEOUT_READ)) }
                 cache.set(request.url, http_result)
                 return http_result['data']
             except requests.exceptions.HTTPError as exception:
@@ -57,14 +59,14 @@ def http_get(url, cache_expiration, params={}, headers={}):
         else:
             # Cache expired, quickly try to update it, return cached data on failure
             try:
-                http_result = { 'expires_on': datetime.datetime.now() + cache_expiration, 'data': http_get(request, timeout=TIMEOUT) }
-                cache.set(request.url, http_result)
+                http_result = { 'expires_on': datetime.datetime.now() + expiration, 'data': http_get(request, timeout=(TIMEOUT_CONNECT, TIMEOUT_READ)) }
+                cache.set(request.url, http_result, cache_expiration)
                 return http_result['data']
             except Exception:
                 return cache_result['data']
 
 ################################################################################
-def __http_get_old(request, timeout=TIMEOUT, logging=True):
+def __http_get_old(request, timeout=(TIMEOUT_CONNECT, TIMEOUT_READ), logging=True):
     start_time = timeit.default_timer()
     try:
         session  = requests.Session()
@@ -79,7 +81,7 @@ def __http_get_old(request, timeout=TIMEOUT, logging=True):
         raise exception
 
 ################################################################################
-def http_get_old(url, params={}, headers={}, timeout=TIMEOUT, logging=True):
+def http_get_old(url, params={}, headers={}, timeout=(TIMEOUT_CONNECT, TIMEOUT_READ), logging=True):
     request = requests.Request('GET', url, params=params, headers=headers)
     request = request.prepare()
     return __http_get_old(request, timeout, logging)
@@ -87,8 +89,8 @@ def http_get_old(url, params={}, headers={}, timeout=TIMEOUT, logging=True):
 ################################################################################
 # JSON
 ################################################################################
-def json_get(url, cache_expiration, params={}, headers={}):
-    http_data = http_get(url, cache_expiration, params=params, headers=headers)
+def json_get(url, expiration, cache_expiration=cache.WEEK, params={}, headers={}):
+    http_data = http_get(url, expiration, cache_expiration=cache_expiration, params=params, headers=headers)
     try:
         return json.loads(http_data)
     except ValueError:
@@ -97,5 +99,5 @@ def json_get(url, cache_expiration, params={}, headers={}):
 ################################################################################
 # RSS
 ################################################################################
-def rss_get(url, cache_expiration, params={}, headers={}):
-    return feedparser.parse(http_get(url, cache_expiration, params=params, headers=headers))
+def rss_get(url, expiration, cache_expiration=cache.WEEK, params={}, headers={}):
+    return feedparser.parse(http_get(url, expiration, cache_expiration=cache_expiration, params=params, headers=headers))

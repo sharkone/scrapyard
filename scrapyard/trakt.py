@@ -15,7 +15,7 @@ TRAKT_HEADERS = { 'content-type': 'application/json', 'trakt-api-version': '2', 
 ################################################################################
 def movie(trakt_slug, people_needed=False):
     if trakt_slug:
-        json_data = network.json_get(TRAKT_URL + '/movies/' + trakt_slug, cache_expiration=cache.WEEK, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
+        json_data = network.json_get(TRAKT_URL + '/movies/' + trakt_slug, expiration=cache.WEEK, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
         if json_data:
             result =    {
                             'trakt_slug':       json_data['ids']['slug'],
@@ -35,7 +35,7 @@ def movie(trakt_slug, people_needed=False):
 
             if people_needed:
                 result['people'] = { 'cast': [], 'crew': { 'directing': [], 'production': [], 'writing': [] } }
-                json_data = network.json_get(TRAKT_URL + '/movies/' + trakt_slug + '/people', cache_expiration=cache.WEEK, params={ 'extended': 'images' }, headers=TRAKT_HEADERS)
+                json_data = network.json_get(TRAKT_URL + '/movies/' + trakt_slug + '/people', expiration=cache.WEEK, params={ 'extended': 'images' }, headers=TRAKT_HEADERS)
                 if json_data:
                     if 'cast' in json_data:
                         for json_item in json_data['cast']:
@@ -74,17 +74,21 @@ def movie(trakt_slug, people_needed=False):
 
 ################################################################################
 def movies_popular(page=1, limit=10):
-    json_data = network.json_get(TRAKT_URL + '/movies/popular', cache_expiration=cache.DAY, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
+    if page > 10:
+        raise exceptions.HTTPError(404)
+    json_data = network.json_get(TRAKT_URL + '/movies/popular', expiration=cache.DAY, cache_expiration=None, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
     return __movie_list(json_data)
 
 ################################################################################
 def movies_trending(page=1, limit=10):
-    json_data = network.json_get(TRAKT_URL + '/movies/trending', cache_expiration=cache.HOUR, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
+    if page > 10:
+        raise exceptions.HTTPError(404)
+    json_data = network.json_get(TRAKT_URL + '/movies/trending', expiration=cache.HOUR, cache_expiration=None, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
     return __movie_list(json_data)
 
 ################################################################################
 def movies_search(query):
-    json_data = network.json_get(TRAKT_URL + '/search', cache_expiration=cache.HOUR, params={ 'query': query, 'type': 'movie' }, headers=TRAKT_HEADERS)
+    json_data = network.json_get(TRAKT_URL + '/search', expiration=cache.HOUR, params={ 'query': query, 'type': 'movie' }, headers=TRAKT_HEADERS)
     return __movie_list(json_data)
 
 ################################################################################
@@ -100,7 +104,7 @@ def __movie_list(json_data):
 ################################################################################
 def show(trakt_slug, seasons_needed=False):
     if trakt_slug:
-        json_data = network.json_get(TRAKT_URL + '/shows/' + trakt_slug, cache_expiration=cache.WEEK, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
+        json_data = network.json_get(TRAKT_URL + '/shows/' + trakt_slug, expiration=cache.WEEK, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
         if json_data:
             result =    {
                             'trakt_slug':       json_data['ids']['slug'],
@@ -120,7 +124,7 @@ def show(trakt_slug, seasons_needed=False):
 
             if seasons_needed:
                 result['seasons'] = []
-                json_data = network.json_get(TRAKT_URL + '/shows/' + trakt_slug + '/seasons', cache_expiration=cache.WEEK, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
+                json_data = network.json_get(TRAKT_URL + '/shows/' + trakt_slug + '/seasons', expiration=cache.WEEK, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
                 if json_data:
                     for json_item in json_data:
                         if json_item['number'] > 0:
@@ -140,7 +144,7 @@ def show(trakt_slug, seasons_needed=False):
 def show_season(trakt_slug, season_index):
     show_info = show(trakt_slug)
     if show_info:
-        json_data = network.json_get(TRAKT_URL + '/shows/' + trakt_slug + '/seasons/' + str(season_index), cache_expiration=cache.DAY, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
+        json_data = network.json_get(TRAKT_URL + '/shows/' + trakt_slug + '/seasons/' + str(season_index), expiration=cache.DAY, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
         if json_data:
             episode_infos = []
 
@@ -170,17 +174,21 @@ def show_episode(trakt_slug, season_index, episode_index):
 
 ################################################################################
 def shows_popular(page=1, limit=10):
-    json_data = network.json_get(TRAKT_URL + '/shows/popular', cache_expiration=cache.DAY, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
+    if page > 10:
+        raise exceptions.HTTPError(404)
+    json_data = network.json_get(TRAKT_URL + '/shows/popular', expiration=cache.DAY, cache_expiration=None, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
     return __show_list(json_data)
 
 ################################################################################
 def shows_trending(page=1, limit=10):
-    json_data = network.json_get(TRAKT_URL + '/shows/trending', cache_expiration=cache.HOUR, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
+    if page > 10:
+        raise exceptions.HTTPError(404)
+    json_data = network.json_get(TRAKT_URL + '/shows/trending', expiration=cache.HOUR, cache_expiration=None, params={ 'page': page, 'limit': limit}, headers=TRAKT_HEADERS)
     return __show_list(json_data)
 
 ################################################################################
 def shows_search(query):
-    json_data = network.json_get(TRAKT_URL + '/search', cache_expiration=cache.HOUR, params={ 'query': query, 'type': 'show' }, headers=TRAKT_HEADERS)
+    json_data = network.json_get(TRAKT_URL + '/search', expiration=cache.HOUR, params={ 'query': query, 'type': 'show' }, headers=TRAKT_HEADERS)
     return __show_list(json_data)
 
 ################################################################################

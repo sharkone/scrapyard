@@ -11,7 +11,7 @@ def episode(show_info, episode_info):
 
     if show_info['imdb_id']:
         try:
-            json_data = network.json_get(EZTV_URL + '/show/' + show_info['imdb_id'], cache_expiration=cache.HOUR)
+            json_data = network.json_get(EZTV_URL + '/show/' + show_info['imdb_id'], expiration=cache.HOUR)
             if json_data and json_data['episodes']:
                 for json_item in json_data['episodes']:
                     if json_item['season'] == episode_info['season_index'] and json_item['episode'] == episode_info['episode_index']:
