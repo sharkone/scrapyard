@@ -41,7 +41,7 @@ def http_get(url, expiration, cache_expiration=cache.WEEK, params={}, headers={}
             try:
                 http_result = { 'expires_on': datetime.datetime.now() + expiration, 'data': __http_get(request, timeout=(TIMEOUT_CONNECT, TIMEOUT_READ)) }
                 cache.set(request.url, http_result)
-                sys.stderr.write('DAT:NEW : {0:3.1f}s : {1}\n'.format(timeit.default_timer() - start_time, request.url))
+                sys.stdout.write('DAT:NEW : {0:3.1f}s : {1}\n'.format(timeit.default_timer() - start_time, request.url))
                 return http_result['data']
             except requests.exceptions.HTTPError as exception:
                 if exception.response.status_code == 404:
@@ -60,13 +60,13 @@ def http_get(url, expiration, cache_expiration=cache.WEEK, params={}, headers={}
             sys.stdout.write('DAT:HIT : {0:3.1f}s : {1}\n'.format(timeit.default_timer() - start_time, request.url))
             return cache_result['data']
         else:
-            # Cache expired, quickly try to update it, return cached data on failure
+            # Cache expired, try to update it, return cached data on failure
             try:
-                http_result = { 'expires_on': datetime.datetime.now() + expiration, 'data': http_get(request, timeout=(TIMEOUT_CONNECT, TIMEOUT_READ)) }
+                http_result = { 'expires_on': datetime.datetime.now() + expiration, 'data': __http_get(request, timeout=(TIMEOUT_CONNECT, TIMEOUT_READ)) }
                 cache.set(request.url, http_result, cache_expiration)
                 sys.stdout.write('DAT:EXP : {0:3.1f}s : {1}\n'.format(timeit.default_timer() - start_time, request.url))
                 return http_result['data']
-            except Exception:
+            except Exception as exception:
                 sys.stderr.write('DAT:FLB : {0:3.1f}s : {1} : {2}\n'.format(timeit.default_timer() - start_time, request.url, repr(exception).replace(',)', ')')))
                 return cache_result['data']
 
