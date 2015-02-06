@@ -144,10 +144,9 @@ def show(trakt_slug, seasons_needed=False):
 def show_season(trakt_slug, season_index):
     show_info = show(trakt_slug)
     if show_info:
+        episode_infos = []
         json_data = network.json_get(TRAKT_URL + '/shows/' + trakt_slug + '/seasons/' + str(season_index), expiration=cache.DAY, params={ 'extended': 'full,images' }, headers=TRAKT_HEADERS)
         if json_data:
-            episode_infos = []
-
             for json_item in json_data:
                 if json_item['first_aired'] and datetime.datetime.now(dateutil.tz.tzutc()) > dateutil.parser.parse(json_item['first_aired']):
                     episode_infos.append({
@@ -162,7 +161,7 @@ def show_season(trakt_slug, season_index):
                                             'first_aired':      json_item['first_aired'],
                                          })
 
-            return episode_infos
+        return episode_infos
 
 ################################################################################
 def show_episode(trakt_slug, season_index, episode_index):

@@ -60,9 +60,9 @@ def http_get(url, expiration, cache_expiration=cache.WEEK, params={}, headers={}
             sys.stdout.write('DAT:HIT : {0:3.1f}s : {1}\n'.format(timeit.default_timer() - start_time, request.url))
             return cache_result['data']
         else:
-            # Cache expired, try to update it, return cached data on failure
+            # Cache expired, quickly try to update it, return cached data on failure
             try:
-                http_result = { 'expires_on': datetime.datetime.now() + expiration, 'data': __http_get(request, timeout=(TIMEOUT_CONNECT, TIMEOUT_READ)) }
+                http_result = { 'expires_on': datetime.datetime.now() + expiration, 'data': __http_get(request, timeout=TIMEOUT_CONNECT) }
                 cache.set(request.url, http_result, cache_expiration)
                 sys.stdout.write('DAT:EXP : {0:3.1f}s : {1}\n'.format(timeit.default_timer() - start_time, request.url))
                 return http_result['data']
