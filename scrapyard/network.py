@@ -40,7 +40,7 @@ def http_get(url, expiration, cache_expiration=cache.WEEK, params={}, headers={}
         while (timeit.default_timer() - start_time) < TIMEOUT_TOTAL:
             try:
                 http_result = { 'expires_on': datetime.datetime.now() + expiration, 'data': __http_get(request, timeout=(TIMEOUT_CONNECT, TIMEOUT_READ)) }
-                cache.set(request.url, http_result)
+                cache.set(request.url, http_result, cache_expiration)
                 sys.stdout.write('DAT:NEW : {0:3.1f}s : {1}\n'.format(timeit.default_timer() - start_time, request.url))
                 return http_result['data']
             except requests.exceptions.HTTPError as exception:
