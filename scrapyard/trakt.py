@@ -103,8 +103,9 @@ def __movies_list_page(page, page_index, timeout=(network.TIMEOUT_CONNECT, netwo
 def __movie_list_parse(json_data):
     movie_infos = []
     if json_data:
-        movie_infos = map(lambda json_item: movie(json_item['movie']['ids']['slug'] if 'movie' in json_item else json_item['ids']['slug']), json_data) or []
-        movie_infos = filter(lambda movie_info: 'imdb_id' in movie_info and movie_info['imdb_id'], movie_infos)
+        movie_slugs = map(lambda json_item: json_item['movie']['ids']['slug'] if 'movie' in json_item else json_item['ids']['slug'], json_data)
+        movie_slugs = filter(None, movie_slugs)
+        movie_infos = map(lambda movie_slug: movie(movie_slug), movie_slugs) or []
     return movie_infos
 
 ################################################################################
@@ -266,7 +267,9 @@ def __shows_list_page(page, page_index, timeout=(network.TIMEOUT_CONNECT, networ
 def __shows_list_parse(json_data):
     show_infos = []
     if json_data:
-        show_infos = map(lambda json_item: show(json_item['show']['ids']['slug'] if 'show' in json_item else json_item['ids']['slug']), json_data) or []
+        show_slugs = map(lambda json_item: json_item['show']['ids']['slug'] if 'show' in json_item else json_item['ids']['slug'], json_data)
+        show_slugs = filter(None, show_slugs)
+        show_infos = map(lambda show_slug: show(show_slug), show_slugs) or []
     return show_infos
 
 ################################################################################
