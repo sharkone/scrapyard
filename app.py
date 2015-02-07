@@ -34,9 +34,8 @@ def index():
 @app.route('/api/movies/popular')
 def api_movies_popular():
     try:
-        page  = flask.request.args.get('page', '1', type=int)
-        limit = flask.request.args.get('limit', '10', type=int)
-        return flask.jsonify({ 'movies': scrapyard.movies_popular(page, limit) })
+        page = flask.request.args.get('page', '1', type=int)
+        return flask.jsonify({ 'movies': scrapyard.movies_popular(page) })
     except scrapyard.exceptions.HTTPError as exception:
         flask.abort(exception.status_code)
 
@@ -44,9 +43,8 @@ def api_movies_popular():
 @app.route('/api/movies/trending')
 def api_movies_trending():
     try:
-        page  = flask.request.args.get('page', '1', type=int)
-        limit = flask.request.args.get('limit', '10', type=int)
-        return flask.jsonify({ 'movies': scrapyard.movies_trending(page, limit) })
+        page = flask.request.args.get('page', '1', type=int)
+        return flask.jsonify({ 'movies': scrapyard.movies_trending(page) })
     except scrapyard.exceptions.HTTPError as exception:
         flask.abort(exception.status_code)
 
@@ -73,9 +71,8 @@ def api_movie(trakt_slug):
 @app.route('/api/shows/popular')
 def api_shows_popular():
     try:
-        page  = flask.request.args.get('page', '1', type=int)
-        limit = flask.request.args.get('limit', '10', type=int)
-        return flask.jsonify({ 'shows': scrapyard.shows_popular(page, limit) })
+        page = flask.request.args.get('page', '1', type=int)
+        return flask.jsonify({ 'shows': scrapyard.shows_popular(page) })
     except scrapyard.exceptions.HTTPError as exception:
         flask.abort(exception.status_code)
 
@@ -83,9 +80,8 @@ def api_shows_popular():
 @app.route('/api/shows/trending')
 def api_shows_trending():
     try:
-        page  = flask.request.args.get('page', '1', type=int)
-        limit = flask.request.args.get('limit', '10', type=int)
-        return flask.jsonify({ 'shows': scrapyard.shows_trending(page, limit) })
+        page = flask.request.args.get('page', '1', type=int)
+        return flask.jsonify({ 'shows': scrapyard.shows_trending(page) })
     except scrapyard.exceptions.HTTPError as exception:
         flask.abort(exception.status_code)
 

@@ -67,6 +67,7 @@ def scrape_magnets(magnets, timeout=2):
             magnet.seeds = max(magnet.seeds, magnet_result['seeds'])
             magnet.peers = max(magnet.peers, magnet_result['peers'])
 
+################################################################################
 def __scrape_tracker(tracker_with_magnets, timeout):
     tracker = tracker_with_magnets[0]
     magnets = tracker_with_magnets[1]
@@ -76,6 +77,7 @@ def __scrape_tracker(tracker_with_magnets, timeout):
     elif tracker.scheme in ['http', 'https']:
         return (tracker, __scrape_tracker_http(tracker, magnets, timeout))
 
+################################################################################
 def __scrape_tracker_udp(tracker, magnets, timeout):
     start_time = timeit.default_timer()
 
@@ -136,6 +138,7 @@ def __scrape_tracker_udp(tracker, magnets, timeout):
 
     return results
 
+################################################################################
 def __scrape_tracker_http(tracker, magnets, timeout):
     start_time = timeit.default_timer()
 
@@ -151,7 +154,7 @@ def __scrape_tracker_http(tracker, magnets, timeout):
     url = urlparse.urlunsplit((tracker.scheme, tracker.netloc, tracker.path, query_string, tracker.fragment))
 
     try:
-        http_data = network.http_get_old(url, timeout=timeout)
+        http_data = network.http_get(url, timeout=timeout, logging=False)
         if http_data:
             decoded_response = bcode.bdecode(http_data)
             for info_hash, stats in decoded_response['files'].iteritems():

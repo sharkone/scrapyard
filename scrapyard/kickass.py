@@ -1,6 +1,5 @@
-import cache
-import exceptions
 import network
+import requests
 import scraper
 import urllib
 
@@ -20,12 +19,12 @@ def __search(query):
     magnet_infos = []
 
     try:
-        rss_data = network.rss_get(KICKASS_URL + '/usearch/{0}'.format(urllib.quote(query)), expiration=cache.HOUR, params={ 'field': 'seeders', 'sorder': 'desc', 'rss': '1' })
+        rss_data = network.rss_get(KICKASS_URL + '/usearch/{0}'.format(urllib.quote(query)), params={ 'field': 'seeders', 'sorder': 'desc', 'rss': '1' })
         if rss_data:
             for rss_item in rss_data.entries:
                 magnet_infos.append(scraper.Magnet(rss_item.torrent_magneturi, rss_item.title, int(rss_item.torrent_seeds), int(rss_item.torrent_peers)))
-    except exceptions.HTTPError as exception:
-        if exception.status_code in (404, 503):
+    except requests.exceptions.HTTPError as exception:
+        if exception.response.status_code in (404, 503):
             pass
 
     return magnet_infos

@@ -1,6 +1,5 @@
-import cache
-import exceptions
 import network
+import requests
 import scraper
 import urllib
 
@@ -11,7 +10,7 @@ def movie(movie_info):
     magnet_infos = []
 
     try:
-        json_data = network.json_get(YTS_URL + '/api/v2/list_movies.json', expiration=cache.HOUR, params={ 'query_term': movie_info['imdb_id'] })
+        json_data = network.json_get(YTS_URL + '/api/v2/list_movies.json', params={ 'query_term': movie_info['imdb_id'] })
         if 'data' in json_data:
             if 'movies' in json_data['data']:
                 for movie_item in json_data['data']['movies']:
@@ -20,8 +19,8 @@ def movie(movie_info):
                             magnet_title = u'{0} ({1}) {2} - YIFY'.format(movie_item['title'], movie_item['year'], torrent_item['quality'])
                             magnet_url   = u'magnet:?xt=urn:btih:{0}&dn={1}&tr=http://exodus.desync.com:6969/announce&tr=udp://tracker.openbittorrent.com:80/announce&tr=udp://open.demonii.com:1337/announce&tr=udp://exodus.desync.com:6969/announce&tr=udp://tracker.yify-torrents.com/announce'.format(torrent_item['hash'], urllib.quote(magnet_title.encode('utf8')))
                             magnet_infos.append(scraper.Magnet(magnet_url, None, torrent_item['seeds'], torrent_item['peers']))
-    except exceptions.HTTPError as exception:
-        if exception.status_code in (404, 503):
+    except requests.exceptions.HTTPError as exception:
+        if exception.response.status_code in (404, 503):
             pass
 
     return magnet_infos

@@ -33,12 +33,12 @@ def __populate_magnets(providers, func):
 ################################################################################
 # Movies
 ################################################################################
-def movies_popular(page, limit):
-    return trakt.movies_popular(page, limit)
+def movies_popular(page):
+    return trakt.movies_popular(page)
 
 ################################################################################
-def movies_trending(page, limit):
-    return trakt.movies_trending(page, limit)
+def movies_trending(page):
+    return trakt.movies_trending(page)
 
 ################################################################################
 def movies_search(query):
@@ -46,21 +46,12 @@ def movies_search(query):
 
 ################################################################################
 def movie(trakt_slug):
-    movie_info            = trakt.movie(trakt_slug, people_needed=True)
-    movie_info['magnets'] = []
+    movie_info = trakt.movie(trakt_slug, people_needed=True)
 
-    cache_key     = trakt_slug
-    cache_results = cache.get(cache_key)
-    if cache_results and cache_results['expires_on'] > datetime.datetime.now():
-        # Cache valid
-        movie_info['magnets'] = cache_results['data']
-    else:
-        # Cache expired
-        # TODO: Kill if too long?
-        scrape_results = { 'expires_on': datetime.datetime.now() + cache.HOUR, 'data': __movie_magnets([ kickass, yts ], movie_info) }
-        if scrape_results:
-            cache.set(cache_key, scrape_results, cache.WEEK)
-            movie_info['magnets'] = scrape_results['data']
+    cache_key             = 'movie-{0}-magnets'.format(trakt_slug)
+    cache_update_func     = functools.partial(__movie_magnets, providers=[ kickass, yts ], movie_info=movie_info)
+    cache_data_expiration = cache.HOUR
+    movie_info['magnets'] = cache.cache_optional(cache_key, cache_update_func, cache_data_expiration) or []
 
     return movie_info
 
@@ -80,22 +71,13 @@ def show_season(trakt_slug, season_index):
 
 ################################################################################
 def show_episode(trakt_slug, season_index, episode_index):
-    show_info               = trakt.show(trakt_slug)
-    episode_info            = trakt.show_episode(trakt_slug, season_index, episode_index)
-    episode_info['magnets'] = []
+    show_info    = trakt.show(trakt_slug)
+    episode_info = trakt.show_episode(trakt_slug, season_index, episode_index)
 
-    cache_key     = '{0}-{1}-{2}'.format(trakt_slug, season_index, episode_index)
-    cache_results = cache.get(cache_key)
-    if cache_results and cache_results['expires_on'] > datetime.datetime.now():
-        # Cache valid
-        episode_info['magnets'] = cache_results['data']
-    else:
-        # Cache expired
-        # TODO: Kill if too long?
-        scrape_results = { 'expires_on': datetime.datetime.now() + cache.HOUR, 'data': __show_episode_magnets([ eztv, kickass ], show_info, episode_info) }
-        if scrape_results:
-            cache.set(cache_key, scrape_results, cache.WEEK)
-            episode_info['magnets'] = scrape_results['data']
+    cache_key               = 'show-{0}-{1}-{2}-magnets'.format(trakt_slug, season_index, episode_index)
+    cache_update_func       = functools.partial(__show_episode_magnets, providers=[ eztv, kickass ], show_info=show_info, episode_info=episode_info)
+    cache_data_expiration   = cache.HOUR
+    episode_info['magnets'] = cache.cache_optional(cache_key, cache_update_func, cache_data_expiration) or []
 
     return episode_info
 
@@ -104,12 +86,12 @@ def __show_episode_magnets(providers, show_info, episode_info):
     return __populate_magnets(providers, functools.partial(lambda module, show_info, episode_info: module.episode(show_info, episode_info), show_info=show_info, episode_info=episode_info))
 
 # ################################################################################
-def shows_popular(page, limit):
-    return trakt.shows_popular(page, limit)
+def shows_popular(page):
+    return trakt.shows_popular(page)
 
 ################################################################################
-def shows_trending(page, limit):
-    return trakt.shows_trending(page, limit)
+def shows_trending(page):
+    return trakt.shows_trending(page)
 
 ################################################################################
 def shows_search(query):
