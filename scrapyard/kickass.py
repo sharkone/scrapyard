@@ -1,3 +1,4 @@
+import exceptions
 import network
 import requests
 import scraper
@@ -26,5 +27,7 @@ def __search(query):
     except requests.exceptions.HTTPError as exception:
         if exception.response.status_code in (404, 503):
             pass
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+        pass
 
     return magnet_infos

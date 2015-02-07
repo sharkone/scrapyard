@@ -1,3 +1,4 @@
+import exceptions
 import network
 import requests
 import scraper
@@ -20,5 +21,9 @@ def episode(show_info, episode_info):
         except requests.exceptions.HTTPError as exception:
             if exception.response.status_code in (404, 503):
                 pass
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            pass
+        except exceptions.JSONError:
+            pass
 
     return magnet_infos

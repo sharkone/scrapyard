@@ -9,23 +9,23 @@ import time
 import timeit
 
 ################################################################################
-TIMEOUT_CONNECT = 1
+TIMEOUT_CONNECT = 2
 TIMEOUT_READ    = 20
 
 ################################################################################
 # HTTP
 ################################################################################
-def __http_get(request, timeout, logging):
+def __http_get(request, timeout, log_success=True, log_failure=True):
     start_time = timeit.default_timer()
     try:
         session  = requests.Session()
         response = session.send(request, timeout=timeout)
         response.raise_for_status()
-        if logging:
+        if log_success:
             sys.stdout.write('NET:HIT : {0:3.1f}s : {1}\n'.format(timeit.default_timer() - start_time, request.url))
         return response.content
     except requests.exceptions.RequestException as exception:
-        if logging:
+        if log_failure:
             sys.stderr.write('NET:ERR : {0:3.1f}s : {1} : {2}\n'.format(timeit.default_timer() - start_time, request.url, repr(exception).replace(',)', ')')))
         raise exception
 
@@ -51,20 +51,29 @@ def http_get_init_failure_handler():
 ################################################################################
 def http_get(url, params={}, headers={}, timeout=(TIMEOUT_CONNECT, TIMEOUT_READ), logging=True):
     request = requests.Request('GET', url, params=params, headers=headers).prepare()
-    return __http_get(request, timeout=timeout, logging=logging)
+    return __http_get(request, timeout=timeout, log_success=logging, log_failure=logging)
 
 ################################################################################
 # JSON
 ################################################################################
-def json_get(url, params={}, headers={}, timeout=(TIMEOUT_CONNECT, TIMEOUT_READ)):
-    http_data = http_get(url, params=params, headers=headers, timeout=timeout)
+def json_get(url, params={}, headers={}, timeout=(TIMEOUT_CONNECT, TIMEOUT_READ), logging=True):
+    start_time = timeit.default_timer()
     try:
-        return json.loads(http_data)
-    except ValueError:
-        raise exceptions.HTTPError(404)
+        request   = requests.Request('GET', url, params=params, headers=headers).prepare()
+        http_data = __http_get(request, timeout=timeout, log_success=False, log_failure=logging)
+        json_data = json.loads(http_data)
+        if logging:
+            sys.stdout.write('NET:HIT : {0:3.1f}s : {1}\n'.format(timeit.default_timer() - start_time, request.url))
+        return json_data
+    except ValueError as exception:
+        if logging:
+            sys.stderr.write('NET:ERR : {0:3.1f}s : {1} : {2}\n'.format(timeit.default_timer() - start_time, request.url, repr(exception).replace(',)', ')')))
+        raise exceptions.JSONError(request.url)
 
 ################################################################################
 # RSS
 ################################################################################
-def rss_get(url, params={}, headers={}, timeout=(TIMEOUT_CONNECT, TIMEOUT_READ)):
-    return feedparser.parse(http_get(url, params=params, headers=headers, timeout=timeout))
+def rss_get(url, params={}, headers={}, timeout=(TIMEOUT_CONNECT, TIMEOUT_READ), logging=True):
+    request = requests.Request('GET', url, params=params, headers=headers).prepare()
+    http_data = __http_get(request, timeout=timeout, log_success=logging, log_failure=logging)
+    return feedparser.parse(http_data)

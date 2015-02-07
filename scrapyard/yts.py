@@ -1,3 +1,4 @@
+import exceptions
 import network
 import requests
 import scraper
@@ -22,5 +23,9 @@ def movie(movie_info):
     except requests.exceptions.HTTPError as exception:
         if exception.response.status_code in (404, 503):
             pass
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+        pass
+    except exceptions.JSONError:
+        pass
 
     return magnet_infos
