@@ -302,7 +302,7 @@ def shows_trending(page):
 ################################################################################
 def __shows_search(query, timeout=(network.TIMEOUT_CONNECT, network.TIMEOUT_READ)):
     json_data = network.json_get(TRAKT_URL + '/search', params={ 'query': query, 'type': 'show' }, headers=TRAKT_HEADERS, timeout=timeout)
-    return __movie_list_parse(json_data)
+    return __shows_list_parse(json_data)
 
 ################################################################################
 def shows_search(query):
