@@ -4,7 +4,7 @@ import requests
 import scraper
 import urllib
 
-KICKASS_URL = 'http://kickass.so'
+KICKASS_URL = 'http://kickass.to'
 
 ################################################################################
 def movie(movie_info):
