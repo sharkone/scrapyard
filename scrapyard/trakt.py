@@ -246,7 +246,7 @@ def show_season(trakt_slug, season_index):
     cache_init_exception_handler = network.http_get_init_exception_handler
     cache_init_failure_handler   = network.http_get_init_failure_handler
     cache_update_func            = functools.partial(__show_season, trakt_slug=trakt_slug, season_index=season_index, timeout=network.TIMEOUT_CONNECT)
-    cache_data_expiration        = cache.WEEK
+    cache_data_expiration        = cache.DAY
 
     return cache.cache(cache_key, cache_init_func, cache_init_exception_handler, cache_init_failure_handler, cache_update_func, cache_data_expiration)
 
