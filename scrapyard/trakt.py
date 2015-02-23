@@ -317,3 +317,9 @@ def shows_search(query):
     cache_data_expiration        = cache.DAY
 
     return cache.cache(cache_key, cache_init_func, cache_init_exception_handler, cache_init_failure_handler, cache_update_func, cache_data_expiration)
+
+################################################################################
+def shows_favorites(favorites):
+    show_slugs = filter(None, favorites)
+    show_infos = map(lambda show_slug : show(show_slug), show_slugs) or []
+    return show_infos

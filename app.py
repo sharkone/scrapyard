@@ -86,6 +86,12 @@ def api_shows_trending():
         flask.abort(exception.status_code)
 
 ################################################################################
+@app.route('/api/shows/favorites')
+def api_shows_favorites():
+    trakt_slugs = flask.request.args.getlist('id')
+    return flask.jsonify({ 'shows': scrapyard.shows_favorites(trakt_slugs) })
+
+################################################################################
 @app.route('/api/shows/search')
 def api_shows_search():
     try:

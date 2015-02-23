@@ -94,5 +94,9 @@ def shows_trending(page):
     return trakt.shows_trending(page)
 
 ################################################################################
+def shows_favorites(favorites):
+    return trakt.shows_favorites(favorites)
+
+################################################################################
 def shows_search(query):
     return trakt.shows_search(query)
