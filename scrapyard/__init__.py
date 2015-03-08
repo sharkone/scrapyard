@@ -41,6 +41,10 @@ def movies_trending(page):
     return trakt.movies_trending(page)
 
 ################################################################################
+def movies_watchlist(watchlist):
+    return trakt.movies_watchlist(watchlist)
+
+################################################################################
 def movies_search(query):
     return trakt.movies_search(query)
 

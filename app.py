@@ -49,6 +49,12 @@ def api_movies_trending():
         flask.abort(exception.status_code)
 
 ################################################################################
+@app.route('/api/movies/watchlist')
+def api_movies_watchlist():
+    trakt_slugs = flask.request.args.getlist('id')
+    return flask.jsonify({ 'movies': scrapyard.movies_watchlist(trakt_slugs) })
+
+################################################################################
 @app.route('/api/movies/search')
 def api_movies_search():
     try:

@@ -155,6 +155,12 @@ def movies_search(query):
     return cache.cache(cache_key, cache_init_func, cache_init_exception_handler, cache_init_failure_handler, cache_update_func, cache_data_expiration)
 
 ################################################################################
+def movies_watchlist(watchlist):
+    movie_slugs = filter(None, watchlist)
+    movie_infos = map(lambda movie_slug : movie(movie_slug), movie_slugs) or []
+    return movie_infos
+
+################################################################################
 # Shows
 ################################################################################
 def __show(trakt_slug, timeout=(network.TIMEOUT_CONNECT, network.TIMEOUT_READ)):
