@@ -4,7 +4,7 @@ import requests
 import scraper
 import urllib
 
-YTS_URL = 'http://yts.re'
+YTS_URL = 'http://yts.to'
 
 ################################################################################
 def movie(movie_info):
