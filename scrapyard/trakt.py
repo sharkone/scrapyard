@@ -150,7 +150,7 @@ def movies_search(query):
     cache_init_exception_handler = network.http_get_init_exception_handler
     cache_init_failure_handler   = network.http_get_init_failure_handler
     cache_update_func            = functools.partial(__movies_search, query=query, timeout=network.TIMEOUT_CONNECT)
-    cache_data_expiration        = cache.DAY
+    cache_data_expiration        = cache.HOUR
 
     return cache.cache(cache_key, cache_init_func, cache_init_exception_handler, cache_init_failure_handler, cache_update_func, cache_data_expiration)
 
@@ -207,7 +207,7 @@ def show(trakt_slug, seasons_needed=False):
     cache_init_exception_handler = network.http_get_init_exception_handler
     cache_init_failure_handler   = network.http_get_init_failure_handler
     cache_update_func            = functools.partial(__show, trakt_slug=trakt_slug, timeout=network.TIMEOUT_CONNECT)
-    cache_data_expiration        = cache.WEEK
+    cache_data_expiration        = cache.DAY
 
     result = cache.cache(cache_key, cache_init_func, cache_init_exception_handler, cache_init_failure_handler, cache_update_func, cache_data_expiration)
 
@@ -217,7 +217,7 @@ def show(trakt_slug, seasons_needed=False):
         cache_init_exception_handler = network.http_get_init_exception_handler
         cache_init_failure_handler   = network.http_get_init_failure_handler
         cache_update_func            = functools.partial(__show_seasons, trakt_slug=trakt_slug, show_info=result, timeout=network.TIMEOUT_CONNECT)
-        cache_data_expiration        = cache.WEEK
+        cache_data_expiration        = cache.DAY
 
         result['seasons'] = cache.cache(cache_key, cache_init_func, cache_init_exception_handler, cache_init_failure_handler, cache_update_func, cache_data_expiration)
 
@@ -252,7 +252,7 @@ def show_season(trakt_slug, season_index):
     cache_init_exception_handler = network.http_get_init_exception_handler
     cache_init_failure_handler   = network.http_get_init_failure_handler
     cache_update_func            = functools.partial(__show_season, trakt_slug=trakt_slug, season_index=season_index, timeout=network.TIMEOUT_CONNECT)
-    cache_data_expiration        = cache.DAY
+    cache_data_expiration        = cache.HOUR * 6
 
     return cache.cache(cache_key, cache_init_func, cache_init_exception_handler, cache_init_failure_handler, cache_update_func, cache_data_expiration)
 
@@ -288,7 +288,7 @@ def shows_popular(page):
     cache_init_exception_handler = network.http_get_init_exception_handler
     cache_init_failure_handler   = network.http_get_init_failure_handler
     cache_update_func            = functools.partial(__shows_list_page, page='/shows/popular', page_index=page, timeout=network.TIMEOUT_CONNECT)
-    cache_data_expiration        = cache.DAY
+    cache_data_expiration        = cache.WEEK
     cache_expiration             = None
 
     return cache.cache(cache_key, cache_init_func, cache_init_exception_handler, cache_init_failure_handler, cache_update_func, cache_data_expiration, cache_expiration)
@@ -320,7 +320,7 @@ def shows_search(query):
     cache_init_exception_handler = network.http_get_init_exception_handler
     cache_init_failure_handler   = network.http_get_init_failure_handler
     cache_update_func            = functools.partial(__shows_search, query=query, timeout=network.TIMEOUT_CONNECT)
-    cache_data_expiration        = cache.DAY
+    cache_data_expiration        = cache.HOUR
 
     return cache.cache(cache_key, cache_init_func, cache_init_exception_handler, cache_init_failure_handler, cache_update_func, cache_data_expiration)
 
