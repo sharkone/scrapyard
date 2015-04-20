@@ -19,7 +19,7 @@ def movie(movie_info):
                         for torrent_item in movie_item['torrents']:
                             magnet_title = u'{0} ({1}) {2} - YIFY'.format(movie_item['title'], movie_item['year'], torrent_item['quality'])
                             magnet_url   = u'magnet:?xt=urn:btih:{0}&dn={1}&tr=http://exodus.desync.com:6969/announce&tr=udp://tracker.openbittorrent.com:80/announce&tr=udp://open.demonii.com:1337/announce&tr=udp://exodus.desync.com:6969/announce&tr=udp://tracker.yify-torrents.com/announce'.format(torrent_item['hash'], urllib.quote(magnet_title.encode('utf8')))
-                            magnet_infos.append(scraper.Magnet(magnet_url, None, torrent_item['seeds'], torrent_item['peers']))
+                            magnet_infos.append(scraper.Magnet(magnet_url, magnet_title, torrent_item['seeds'], torrent_item['peers'], torrent_item['size_bytes']))
     except requests.exceptions.HTTPError as exception:
         if exception.response.status_code in (404, 503):
             pass

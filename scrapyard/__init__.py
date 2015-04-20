@@ -14,19 +14,18 @@ import yts
 def __populate_magnets(providers, func):
     provider_magnet_lists = map(func, providers)
 
-    magnets     = []
-    info_hashes = set()
+    magnets = {}
 
     for provider_magnet_list in provider_magnet_lists:
         for magnet in provider_magnet_list:
-            if magnet.info_hash not in info_hashes:
-                magnets.append(magnet)
-                info_hashes.add(magnet.info_hash)
+            if (magnet.info_hash not in magnets) or (magnet.size > magnets[magnet.info_hash].size):
+                magnets[magnet.info_hash] = magnet
 
+    magnets = magnets.values()
     scraper.scrape_magnets(magnets, timeout=1)
     magnets = filter(lambda magnet: magnet.seeds > 0, magnets)
     magnets = sorted(magnets, key=lambda magnet: magnet.seeds, reverse=True)
-    magnets = [{'link': magnet.link, 'title': magnet.title, 'seeds': magnet.seeds, 'peers': magnet.peers } for magnet in magnets]
+    magnets = [{'link': magnet.link, 'title': magnet.title, 'seeds': magnet.seeds, 'peers': magnet.peers, 'size': magnet.size } for magnet in magnets]
 
     return magnets
 

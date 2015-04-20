@@ -18,7 +18,7 @@ import utils
 # Magnet
 ################################################################################
 class Magnet:
-    def __init__(self, link, title, seeds, peers):
+    def __init__(self, link, title, seeds, peers, size):
         parse_result = urlparse.parse_qs(urlparse.urlparse(link).query)
 
         self.link         = link
@@ -26,6 +26,7 @@ class Magnet:
         self.title        = title if title else self.display_name
         self.seeds        = seeds
         self.peers        = peers
+        self.size         = size
         self.trackers     = map(urlparse.urlparse, parse_result['tr']) if 'tr' in parse_result else []
         self.info_hash    = parse_result['xt'][0].split(':')[-1].upper()
 
