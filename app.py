@@ -1,4 +1,5 @@
 import flask
+import json
 import os
 import scrapyard
 
@@ -49,9 +50,12 @@ def api_movies_trending():
         flask.abort(exception.status_code)
 
 ################################################################################
-@app.route('/api/movies/watchlist')
+@app.route('/api/movies/watchlist', methods=['POST', 'GET'])
 def api_movies_watchlist():
-    trakt_slugs = flask.request.args.getlist('id')
+    if flask.request.method == 'GET':
+        trakt_slugs = flask.request.args.getlist('id')
+    elif flask.request.method == 'POST':
+        trakt_slugs = json.loads(flask.request.form['movies_watchlist'])
     return flask.jsonify({ 'movies': scrapyard.movies_watchlist(trakt_slugs) })
 
 ################################################################################
@@ -92,9 +96,12 @@ def api_shows_trending():
         flask.abort(exception.status_code)
 
 ################################################################################
-@app.route('/api/shows/favorites')
+@app.route('/api/shows/favorites', methods=['POST', 'GET'])
 def api_shows_favorites():
-    trakt_slugs = flask.request.args.getlist('id')
+    if flask.request.method == 'GET':
+        trakt_slugs = flask.request.args.getlist('id')
+    elif flask.request.method == 'POST':
+        trakt_slugs = json.loads(flask.request.form['shows_favorites'])
     return flask.jsonify({ 'shows': scrapyard.shows_favorites(trakt_slugs) })
 
 ################################################################################
