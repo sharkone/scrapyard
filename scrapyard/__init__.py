@@ -52,7 +52,7 @@ def movie(trakt_slug):
     movie_info = trakt.movie(trakt_slug, people_needed=True)
 
     cache_key             = 'movie-{0}-magnets'.format(trakt_slug)
-    # cache_update_func     = functools.partial(__movie_magnets, providers=[ kickass, yts ], movie_info=movie_info)
+    #cache_update_func     = functools.partial(__movie_magnets, providers=[ kickass, yts ], movie_info=movie_info)
     cache_update_func     = functools.partial(__movie_magnets, providers=[ kickass ], movie_info=movie_info)
     cache_data_expiration = cache.HOUR * 2
     movie_info['magnets'] = cache.cache_optional(cache_key, cache_update_func, cache_data_expiration) or []
@@ -80,7 +80,7 @@ def show_episode(trakt_slug, season_index, episode_index):
 
     cache_key               = 'show-{0}-{1}-{2}-magnets'.format(trakt_slug, season_index, episode_index)
     # cache_update_func       = functools.partial(__show_episode_magnets, providers=[ eztv, kickass ], show_info=show_info, episode_info=episode_info)
-    cache_update_func       = functools.partial(__show_episode_magnets, providers=[ kickass ], show_info=show_info, episode_info=episode_info)
+    cache_update_func       = functools.partial(__show_episode_magnets, providers=[ eztv, kickass ], show_info=show_info, episode_info=episode_info)
     cache_data_expiration   = cache.HOUR * 2
     episode_info['magnets'] = cache.cache_optional(cache_key, cache_update_func, cache_data_expiration) or []
 
