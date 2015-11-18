@@ -3,7 +3,7 @@ import network
 import requests
 import scraper
 
-EZTV_URL = 'https://www.popcorntime.ws/api/eztv/'
+EZTV_URL = 'https://www.popcorntime.ws/api/eztv'
 
 ################################################################################
 def episode(show_info, episode_info):
